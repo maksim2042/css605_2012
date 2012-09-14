@@ -14,7 +14,7 @@ def playRound(p1, p2):
 	p2.result(result,[move2,move1])
 	
 p1 = p.RandomPlayer()
-p2 = p.RandomPlayer()  
+p2 = p.RandomPlayer()   
 
 def playGame():
 	for i in range(10):
