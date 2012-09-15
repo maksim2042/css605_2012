@@ -10,6 +10,11 @@ All players have at least the following methods:
 __init__(self, action_list) -- Instantiate the player with the allowed actions.
 go(self) -- Make a move
 receive_score(self, score) -- Receive the results of a round and do something with them.
+
+TODO: Edit the players so they have access to the payoff matrix and 
+can figure out which move beats which.
+
+TODO: Add the following players: SequencePlayer, Tit4Tat, Human, ML, Markov
 '''
 
 import random
