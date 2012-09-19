@@ -24,13 +24,13 @@ class Player(object):
     Base class for the game player.
     '''
 
-    def __init__(self, action_list):
+    def __init__(self, game):
         '''
         Instantiate a new player with a list of allowable actions.
         Args:
             action_list: the list of actions from the Game object
         '''
-        self.action_list = action_list
+        self.game = game
 
     def go(self):
         '''
@@ -49,7 +49,7 @@ class FixedPlayer(Player):
     A player which picks a given action and then plays it always.
     '''
 
-    def __init__(self, action_list, fixed_choice = None):
+    def __init__(self, game, fixed_choice = None):
         '''
         Instantiate a new fixed player.
 
@@ -57,9 +57,9 @@ class FixedPlayer(Player):
             action_list: The list of actions from the game object
             fixed_choice: If given, the choice the player will always play
         '''
-        self.action_list = action_list
-        if fixed_choice is None or fixed_choice not in self.action_list:
-            self.fixed_choice = random.choice(self.action_list)
+        self.game = game
+        if fixed_choice is None or fixed_choice not in self.game.action_list:
+            self.fixed_choice = random.choice(self.game.action_list)
         else:
             self.fixed_choice = fixed_choice
 
@@ -80,20 +80,20 @@ class RandomPlayer(Player):
     A player who acts randomly every move.
     '''
 
-    def __init__(self, action_list):
+    def __init__(self, game):
         '''
         Instantiate a RandomPlayer player.
 
         Args:
             action_list: The list of actions from the game object
         '''
-        self.action_list = action_list
+        self.game = game
 
     def go(self):
         '''
         Pick an action at random.
         '''
-        action = random.choice(self.action_list)
+        action = random.choice(self.game.action_list)
         return action
 
     def receive_score(self, score):
