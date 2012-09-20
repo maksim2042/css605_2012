@@ -13,7 +13,7 @@ def playRound(p1, p2):
 	result.reverse()
 	p2.result(result,[move2,move1])
 	
-p1 = p.RandomPlayer()
+p1 = p.RandomPlayer(id="Max")
 p2 = p.RandomPlayer()   
 
 def playGame():

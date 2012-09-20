@@ -6,10 +6,14 @@ import random
 
 class Player(object):
 	
-	def __init__(self):
+	def __init__(self, id="noID"):
 		self.myScore=0
 		self.score_history=[]
 		self.move_history=[]
+		self.id=id
+	
+	def getID():
+		return self.id
 	
 	def go(self):
 		return c.ROCK
