@@ -2,6 +2,7 @@
 Created on Sep 13, 2012
 you need to use yankenpo
 to see how the game run!!!
+
 @author: josemagallanes
 '''
 
@@ -24,6 +25,7 @@ class Player(object):
     def result(self, choice, moves):
         self.score_history.append(choice)
         self.move_history.append(moves)
+        
         if choice[0]==1: 
             self.myScore+=1
             print self.name,": Good Choice!", self.myScore 
@@ -32,7 +34,9 @@ class Player(object):
         else:
             self.myScore-=1
             print self.name,': Bad Move!', self.myScore
-    
+        
+        
+            
     def history(self):
         print self.score_history  
         print self.move_history 
