@@ -10,7 +10,7 @@ to see how the game run!!!
 import constants as c
 import random
 
-class Player(object):
+class Player:
 
     def __init__(self,name):
         self.name=name
@@ -18,8 +18,8 @@ class Player(object):
         self.score_history=[]
         self.move_history=[]
 
+
     def go(self):
-        print self.name, "is a stupid player!"
         return c.CHOICES[1]
 
     def result(self, choice, moves):
@@ -34,8 +34,6 @@ class Player(object):
         else:
             self.myScore-=1
             print self.name,': Bad Move!', self.myScore
-        
-        
             
     def history(self):
         print self.score_history  
@@ -46,6 +44,5 @@ class RandomPlayer(Player):
         Player.__init__(self, name)
 
     def go(self):
-        print self.name, "is a random player!"
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
