@@ -4,6 +4,8 @@ player.py
 
 additional players added by Brendon Fuhs
 
+ID MIGHT NEEED TO BE FED TO SUPER INIT< NOT SURE
+
 '''
 
 import constants as c
@@ -11,10 +13,14 @@ import random
 
 
 class Player():
-    def __init__(self):
+    def __init__(self, id="noID"):
         self.myScore=0
         self.score_history=[]
         self.move_history=[]
+        self.id=id
+
+    def getID():
+        return self.id
         
     def go(self):
         return c.ROCK
@@ -34,7 +40,7 @@ class Player():
 
 
 class RandomPlayer(Player): # plays random moves all the time
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         choice=int(random.uniform(0,3))
@@ -42,7 +48,7 @@ class RandomPlayer(Player): # plays random moves all the time
 
 
 class StupidPlayer(Player): # plays the same move over and over
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
         self.stickToYerGuns = c.CHOICES[int(random.uniform(0,3))]
     def go(self):
@@ -50,7 +56,7 @@ class StupidPlayer(Player): # plays the same move over and over
 
 
 class SequencePlayer(Player): # plays the same sequence over and over
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
         self.SEQUENCELENGTH = 42
         self.magicSequence = [" "]*self.SEQUENCELENGTH
@@ -62,7 +68,7 @@ class SequencePlayer(Player): # plays the same sequence over and over
 
 
 class Tit4TatPlayer(Player): # plays opponent's last move
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
         self.moveNum = -1 # Will change to proper moveNum at beginning of turns
     def go(self):
@@ -74,7 +80,7 @@ class Tit4TatPlayer(Player): # plays opponent's last move
 
 
 class HumanPlayer(Player): # provides a basic interface for humans to play the game
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
         self.firstTime = True
         self.playerName = "I AM NO MAN"
@@ -109,7 +115,7 @@ class HumanPlayer(Player): # provides a basic interface for humans to play the g
 
 # FIX
 class MLPlayer(Player): # uses simple machine learning to estimate probability of next move
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         choice=int(random.uniform(0,3))
@@ -117,7 +123,7 @@ class MLPlayer(Player): # uses simple machine learning to estimate probability o
 
 # FIX
 class MarkovPlayer(Player): # uses Markov processes to estimate sequence of moves for the opponent
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         choice=int(random.uniform(0,3))
@@ -125,15 +131,19 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
 
 # FIX
 class SleeperCell(Player): # This player waits...
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
+'''
+
+import referee.py as r
+# These both depend on what's happening with the referee
 
 # This isn't working properly
 class TheCheat(Player): # This player tries to cheat by peeking
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     # import referee as r # I don't think I need to do this.
     def go(self):
@@ -145,9 +155,9 @@ class TheCheat(Player): # This player tries to cheat by peeking
         for i in range(3):
             if Ref.move1 == c.CHOICES[i]:
                 return c.CHOICES[(i+1)%3]
-'''
+
 class TheAssassin(Player)
-    def __init__(self):
+    def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         del p2

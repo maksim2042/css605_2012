@@ -14,12 +14,9 @@ import constants as c
 import player as p
 
 class Referee():
-    
-    scorecard = {}
-
     def __init__(self):
         self.scorecard = {}
-
+        self.lastResult = [0,0]
     def resetScore(self):
         self.scorecard = {}
         
@@ -27,30 +24,34 @@ class Referee():
         move1=p1.go()
         move2=p2.go()
         result=list(c.PAYOFFS[move1,move2])
+        for j in range(2):
+            self.lastResult[j] = self.lastResult[j] + result[j]
         p1.result(result,[move1,move2])
-        self.scorecard[p1] = self.scorecard[p1] + result[0]
+        self.scorecard[p1.id] = self.scorecard[p1.id] + result[0]
         result.reverse()
         p2.result(result,[move2,move1])
-        self.scorecard[p2] = self.scorecard[p2] + result[0]
+        self.scorecard[p2.id] = self.scorecard[p2.id] + result[0]
         
     def playGame(self, p1, p2, numRounds):
-        for player in {p1,p2} - set(self.scorecard.keys()):
+        self.lastResult = [0,0]
+        for player in {p1.id,p2.id} - set(self.scorecard.keys()):
             self.scorecard[player]=0
         for i in range(numRounds):
             self.playRound(p1,p2)
+
         
+Ref = Referee()
+
+playerList = []
+playerNameList = []
 
 print "Type \"PlayRPS()\""
 
 
-# A Big Dumb Function to play the game through console interface
 def PlayRPS():
-    
-    Ref = Referee()
-    
-    playerNameList = ["No Thanks"]
-    playerList = []
-    
+
+    choice = 0
+
     mainMenu = ["Play Rock, Paper, Scissors",
                 "View Scorecard",
                 "Reset Scorecard",
@@ -59,6 +60,63 @@ def PlayRPS():
                 "Delete a Player",
                 "Quit" ]
     
+    # Game Loop!
+    while True:
+        print " "
+        showMenu(mainMenu)
+        print " "
+        choice = requestChoice(7)
+        if choice==1:
+            setupAGame()
+        elif choice==2:
+            print Ref.scorecard
+        elif choice==3:
+            Ref.resetScore()
+        elif choice==4:
+            showMenu(playerNameList)
+        elif choice==5:
+            createPlayer()
+        elif choice==6:
+            deletePlayer()
+        elif choice==7:
+            break
+
+# Main Menu Option 1
+def setupAGame():
+    if len(playerList) <= 1:
+        print " "
+        print "You need to have created two players before you can play!"
+        print " "
+        return
+    print " "
+    print "It's showtime."
+    print " "
+    showMenu(playerNameList)
+    print " "
+    print "Enter player one... "
+    player1Choice = requestChoice(len(playerNameList))
+    print " "
+    print "Enter player two... "
+    player2Choice = requestChoice(len(playerNameList))
+    print " "
+    if player2Choice == player1Choice:
+        print "I'm sorry, but I cannot comprehend the sound of one hand clapping."
+        print " "
+        return
+    print "Enter the number of rounds the game should last: (max 1000000)"
+    gameLength = requestChoice(1000000)
+    print " "
+    print "You have chosen ", playerNameList[player1Choice-1], " and ", playerNameList[player2Choice-1]
+    print " "
+    Ref.playGame(playerList[player1Choice-1],playerList[player2Choice-1],gameLength)
+    print "The final scores for ", playerNameList[player1Choice-1], " and ", playerNameList[player2Choice-1], " are... "
+    print Ref.lastResult
+    print " "
+    
+
+# Main Menu Option 5
+def createPlayer():
+    
     playerTypeMenu = ["Random Player",
                       "Stupid Player",
                       "Sequence Player",
@@ -66,120 +124,74 @@ def PlayRPS():
                       "Human Player",
                       "MLPlayer Player",
                       "Markov Player",
-                      "SleeperCell",
-                      "TheCheat" ]
-                
-    def displayMenu(menu):
-        print " "
-        for i in range(len(menu)):
-            print str(i+1) + ": " + menu[i]
-        print " "
-        while True:
-            option = raw_input("Enter your choice here... ")
-            try: int(option)
-            except: continue
-            if int(option) in range(1,len(menu)+1):
-                print " "
-                return int(option)
-
-    # Game Loop
-    while True:
-        print " "
-        print "Let's play Rock, Paper Scissors! "
-        print " "
-        mainOption = displayMenu(mainMenu)
-
-        if mainOption == 1:
-            if len(playerList) == 0:
-                print " "
-                print "You have to create a player before you can play!"
-                print " "
-                continue
-
-            print " "
-            print "It's showtime."
-            print "Enter player one... "
-            player1Choice = displayMenu(playerNameList)
-            if player1Choice == len(playerNameList):
-                continue
-            print " "
-            print "Enter player two... "
-            player2Choice = displayMenu(playerNameList)
-            if player2Choice == player1Choice:
-                print "I'm sorry, but I cannot comprehend the sound of one hand clapping."
-                print " "
-                continue
-            if player2Choice == len(playerNameList):
-                continue
-            print " "
-            while True:
-                gameLength = raw_input("Enter the number of rounds the game should last: ")
-                try: int(gameLength)
-                except: continue
-                gameLength = int(gameLength)
-                if gameLength > 0:
-                    break
-            print "You have chosen ", playerNameList[player1Choice-1], " and ", playerNameList[player2Choice-1]
-            Ref.playGame(playerList[player1Choice-1],playerList[player2Choice-1],gameLength)
-
-            # SHOW RESULT OF GAME HERE
-        
-        elif mainOption == 2:
-            print Ref.scorecard
-            
-        elif mainOption == 3:
-            Ref.resetScore()
-
-        elif mainOption == 4:
-            print "Here are the players currently available to play with... "
-            print " "
-            for i in range(len(playerNameList)-1):
-                print playerNameList[i]
-            print " "
-        
-        elif mainOption == 5:
-            print " "
-            playerNameList.insert(0,raw_input("Enter a name for your player... "))
-            print " "
-            print "Now choose which player type you would like your player to be."
-            playerTypeOption = displayMenu(playerTypeMenu)
-            if playerTypeOption == 1:
-                playerList.insert(0, p.RandomPlayer())
-            elif playerTypeOption == 2:
-                playerList.insert(0, p.StupidPlayer())
-            elif playerTypeOption == 3:
-                playerList.insert(0, p.SequencePlayer())
-            elif playerTypeOption == 4:
-                playerList.insert(0, p.Tit4TatPlayer())
-            elif playerTypeOption == 5:
-                playerList.insert(0, p.HumanPlayer())
-            elif playerTypeOption == 6:
-                playerList.insert(0, p.MLPlayer())
-            elif playerTypeOption == 7:
-                playerList.insert(0, p.MarkovPlayer())
-            elif playerTypeOption == 8:
-                playerList.insert(0, p.SleeperCell())
-            elif playerTypeOption == 9:
-                playerList.insert(0, p.TheCheat())
-            
-            
-        elif mainOption == 6:
-            if len(playerList) == 1:
-                print "You have no players to delete!"
-                print " "
-            else:
-                print "Choose which player to delete."
-                print " "
-                delOption = displayMenu(playerNameList)
-                if delOption == len(playerNameList):
-                    pass
-                else:
-                    del playerList[delOption-1]
-
-        elif mainOption == 7:
-            print "Thank you for playing Rock, Paper, Scissors!"
-            return
-
+                      "SleeperCell"]
+    print " "
+    id = raw_input("Enter a name for your player... ")
+    print " "
+    showMenu(playerTypeMenu+["Go back"])
+    print " "
+    print "Choose which player type you would like your player to be."
+    print " "
+    choice = requestChoice(len(playerTypeMenu)+1)
+    print " "
     
+    if choice == 9: # Doing this before I add an id to the name list
+        return
+    
+    playerNameList.insert(0, id)
+    
+    if choice == 1:
+        playerList.insert(0, p.RandomPlayer(id))
+    elif choice == 2:
+        playerList.insert(0, p.StupidPlayer(id))
+    elif choice == 3:
+        playerList.insert(0, p.SequencePlayer(id))
+    elif choice == 4:
+        playerList.insert(0, p.Tit4TatPlayer(id))
+    elif choice == 5:
+        playerList.insert(0, p.HumanPlayer(id))
+    elif choice == 6:
+        playerList.insert(0, p.MLPlayer(id))
+    elif choice == 7:
+        playerList.insert(0, p.MarkovPlayer(id))
+    elif choice == 8:
+        playerList.insert(0, p.SleeperCell(id))
+    print " "
+
+
+# Main Menu Option 6
+def deletePlayer():
+    if len(playerList) == 0:
+        print " "
+        print "You have no players to delete!"
+        print " "
+        return
+    print " "
+    showMenu(playerNameList+["Go back"])
+    print " "
+    print "Choose which player to delete."
+    print " "
+    choice = requestChoice(len(playerNameList)+1)
+    if choice == len(playerNameList)+1:
+        pass
+    else:
+        del playerList[choice-1]
+
+# prints a list with numbers to the left
+def showMenu(menu):
+    print " "
+    for i in range(len(menu)):
+        print str(i+1) + ": " + menu[i]
+    print " "
+
+# gets a choice
+def requestChoice(numOptions):
+    while True:
+        choice = raw_input("Enter your choice here... ")
+        try: int(choice)
+        except: continue
+        if int(choice) in range(1,numOptions+1):
+            print " "
+            return int(choice)
 
 
