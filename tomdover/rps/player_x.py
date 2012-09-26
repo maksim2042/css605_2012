@@ -124,70 +124,126 @@ class MyPlayer(Player):
 	def __init__(self):
 		Player.__init__(self)
 		self.CHOICES=('PAPER','SCISSORS','ROCK')
-		self.other_player=[]
-		self.temp_other_player=[]
-		self.op_rock=0
-		self.dbh_rock=[]
-		self.op_paper=0
-		self.dbh_paper=[]
-		self.op_scissors=0
-		self.dbh_scissors=[]
+		self.o_player=[]
+		self.temp_op=[]
+		self.op_r=0
+		self.dbh_r=[]
+		self.op_p=0
+		self.dbh_p=[]
+		self.op_s=0
+		self.dbh_s=[]
+		self.avg_r=0
+		self_avg_p=0
+		self.avg_s=0
+		self.last_r=0
+		self.last_p=0
+		self.last_s=0
+		self.dist_r=0
+		self.dist_p=0
+		self.dist_s=0
 	
 	def go(self):
 		if len(self.move_history)==0:
 			self.choice=random.choice(c.CHOICES)
+			return (self.choice)
 		else:
-			cal_rock()
-			cal_paper()
-			cal_scissors()
+			self.cal_rock()
+			self.cal_paper()
+			self.cal_scissors()
+			if (self.dist_r<=self.dist_p) and (self.dist_r<=self.dist_s):
+				self.choice='ROCK'
+			elif (self.dist_p<=self.dist_r) and (self.dist_p<=self.dist_s):
+				self.choice='PAPER'
+			else:
+				self.choice='SCISSORS'
+			return (self.choice)
 		
-	def cal_rock():
+	def cal_rock(self):
 		a=self.move_history[-1]
-		self.other_player.append(a[-1])
-		self.op_rock=self.other_player.count('ROCK')
-		self.temp_other_player=self.other_player
-		w=self.temp_other_player.index('ROCK')
-		self.dbh_rock.append(w+1)
-			
-		while w>0 or self.op_rock>1:
-			self.temp_other_player=self.temp_other_player[w+1:]
-			w=self.temp_other_player.index('ROCK')
-			self.dbh_rock.append(w+1)
-			self.op_rock=self.temp_other_player.count('ROCK')
+		self.o_player.append(a[-1])
+		self.op_r=self.o_player.count('ROCK')
+		self.temp_op=self.o_player
+		if self.o_player.count('ROCK')==0:
+			self.dirt_r=100
+			return (self.dist_r)
+		else:
+			w=self.temp_op.index('ROCK')
+			self.dbh_r.append(w+1)
+			while w>0 or self.op_r>1:
+				self.temp_op=self.temp_op[w+1:]
+				try:
+					w=self.temp_op.index('ROCK')
+				except:
+					break
+				self.dbh_r.append(w+1)
+				self.op_r=self.temp_op.count('ROCK')
+				l=len(self.temp_op)
+				self.last_r=l
 		
-		avg_rock=math.fsum(self.dbh_rock)/len(self.dbh_rock)
-		return avg_rock
+			self.avg_r=math.fsum(self.dbh_r)/len(self.dbh_r)
+			self.last_r=len(self.temp_op)
+			if self.last_r-1<self.avg_r:
+				self.dist_r=self.avg_r-(self.last_r-1)
+			else:
+				self.dist_r=10
+			return self.dist_r
 	
-	def cal_paper():
+	def cal_paper(self):
 		a=self.move_history[-1]
-		self.other_player.append(a[-1])
-		self.op_paper=self.other_player.count('PAPER')
-		self.temp_other_player=self.other_player
-		w=self.temp_other_player.index('PAPER')
-		self.dbh_paper.append(w+1)
+		self.o_player.append(a[-1])
+		self.op_p=self.o_player.count('PAPER')
+		self.temp_op=self.o_player
+		if self.o_player.count('PAPER')==0:
+			self.dirt_r=100
+			return (self.dist_r)
+		else:
+			w=self.temp_op.index('PAPER')
+			self.dbh_p.append(w+1)
+			while w>0 or self.op_p>1:
+				self.temp_o_player=self.temp_op[w+1:]
+				try:
+					w=self.temp_o_player.index('PAPER')
+				except:
+					break
+			self.dbh_p.append(w+1)
+			self.op_p=self.temp_op.count('PAPER')
+			l=len(self.temp_op)
+			self.last_p=l
 			
-		while w>0 or self.op_paper>1:
-			self.temp_other_player=self.temp_other_player[w+1:]
-			w=self.temp_other_player.index('PAPER')
-			self.dbh_paper.append(w+1)
-			self.op_paper=self.temp_other_player.count('PAPER')
+			self.avg_p=math.fsum(self.dbh_p)/len(self.dbh_p)
+			self.last_p=len(self.temp_op)
+			if self.last_r-1<self.avg_p:
+				self.dist_p=self.avg_p-(self.last_p-1)
+			else:
+				self.dist_p=10
+			return self.dist_p
 		
-		avg_paper=math.fsum(self.dbh_paper)/len(self.dbh_paper)
-		return avg_paper
-		
-	def cal_scissors():
+	def cal_scissors(self):
 		a=self.move_history[-1]
-		self.other_player.append(a[-1])
-		self.op_scissors=self.other_player.count('SCISSORS')
-		self.temp_other_player=self.other_player
-		w=self.temp_other_player.index('SCISSORS')
-		self.dbh_scissors.append(w+1)
+		self.o_player.append(a[-1])
+		self.op_s=self.o_player.count('SCISSORS')
+		self.temp_op=self.o_player
+		if self.o_player.count('SCISSORS')==0:
+			self.dirt_r=100
+			return (self.dist_r)
+		else:
+			w=self.temp_op.index('SCISSORS')
+			self.dbh_s.append(w+1)
+			while w>0 or self.op_scissors>1:
+				self.temp_o_player=self.temp_op[w+1:]
+				try:
+					w=self.temp_op.index('SCISSORS')
+				except:
+					break
+			self.dbh_s.append(w+1)
+			self.op_s=self.temp_op.count('SCISSORS')
+			l=len(self.temp_op)
+			self.last_s=l
 			
-		while w>0 or self.op_scissors>1:
-			self.temp_other_player=self.temp_other_player[w+1:]
-			w=self.temp_other_player.index('SCISSORS')
-			self.dbh_scissors.append(w+1)
-			self.op_scissors=self.temp_other_player.count('SCISSORS')
-		
-		avg_scissors=math.fsum(self.dbh_scissors)/len(self.dbh_scissors)
-		return avg_scissors
+			self.avg_s=math.fsum(self.dbh_s)/len(self.dbh_s)
+			self.last_s=len(self.temp_op)
+			if self.last_r-1<self.avg_s:
+				self.dist_s=self.avg_s-(self.last_s-1)
+			else:
+				self.dist_s=10
+			return self.dist_s
