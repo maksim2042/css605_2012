@@ -30,13 +30,11 @@ class Player():
         self.move_history.append(moves)
         if res[0]==1: 
             self.myScore+=1
-        #   print "I WON!!! ", self.myScore
         elif res[0]==0:
-            pass  # I don't want this talking to me.
-        #   print 'DRAW ', self.myScore
+            pass
         else:
             self.myScore-=1
-        #   print 'I LOST :((( ', self.myScore
+
 
 
 class RandomPlayer(Player): # plays random moves all the time
@@ -79,18 +77,13 @@ class Tit4TatPlayer(Player): # plays opponent's last move
             return(self.move_history[self.moveNum-1][1])
 
 
+# RE-TEST THIS
 class HumanPlayer(Player): # provides a basic interface for humans to play the game
     def __init__(self, id="noID"):
         Player.__init__(self)
-        self.firstTime = True
-        self.playerName = "I AM NO MAN"
     def go(self):
-        if self.firstTime == True:
-            self.playerName = raw_input("Please enter your name... ")
-            print "Thank you, ", self.playerName
-            self.firstTime = False
-        
-        print "Dear ", self.playerName, ", "
+
+        print "Dear ", self.id, ", "
         while True:
             typedStuff = raw_input("Please type ROCK, PAPER, or SCISSORS and hit enter... ")
             if typedStuff in c.CHOICES:
@@ -113,13 +106,54 @@ class HumanPlayer(Player): # provides a basic interface for humans to play the g
             print "You had a draw. Your running score is ", self.myScore
 
 
-# FIX
 class MLPlayer(Player): # uses simple machine learning to estimate probability of next move
     def __init__(self, id="noID"):
         Player.__init__(self)
+        self.DECAY_RATE = 0.01 # Float between 0(never forget) and inf(remember last only)
+        self.GREEDINESS = 0.0 # Float between -1(random) and 1(totally greedy)
+        self.enemyMoveProbs = { c.ROCK: 1.0/3.0,
+                                c.PAPER: 1.0/3.0,
+                                c.SCISSORS: 1.0/3.0 }
     def go(self):
-        choice=int(random.uniform(0,3))
-        return(c.CHOICES[choice])
+        
+        try: enemyLastMove = self.move_history[len(self.move_history)-1][1]
+        except: return(c.CHOICES[int(random.uniform(0,3))])
+                   
+        self.enemyMoveProbs[enemyLastMove] += 3 * self.DECAY_RATE # I should think through whether
+                                                                    # I want the three there.
+
+        # renormalize
+        totalProbs = sum(self.enemyMoveProbs.values())
+        for move in self.enemyMoveProbs.keys():
+            self.enemyMoveProbs[move] /= totalProbs
+
+        # RPS is responded to with PSR (or rather, SPR is responded to with RPS)
+        myMoveProbs = [ self.enemyMoveProbs[c.SCISSORS],
+                        self.enemyMoveProbs[c.ROCK],
+                        self.enemyMoveProbs[c.PAPER] ]
+        if self.GREEDINESS <= 0.0:
+            for i in range(3):
+                myMoveProbs[i] += self.GREEDINESS * (myMoveProbs[i] - 1.0/3.0)
+        else:
+            indexToAdjust = -1
+            for i in range(3):
+                if myMoveProbs[i]==max(myMoveProbs):
+                    myMoveProbs[i] += self.GREEDINESS * (1.0 - myMoveProb[i])
+                elif myMoveProbs[i]==min(myMoveProbs):
+                    myMoveProbs[i] -= self.GREEDINESS * myMoveProbs[i]
+                else:
+                    indexToAdjust = i
+            myMoveProbs[i] = 1 - myMoveProbs[(i+1)%3] - myMoveProbs[(i+2)%3]
+            
+        diceRoll = random.random()
+        if diceRoll <= myMoveProbs[0]:
+            return(c.CHOICES[0])
+        elif diceRoll <= myMoveProbs[0]+myMoveProbs[1]:
+            return(c.CHOICES[1])
+        else:
+            return(c.CHOICES[2])
+
+    
 
 # FIX
 class MarkovPlayer(Player): # uses Markov processes to estimate sequence of moves for the opponent
@@ -136,6 +170,9 @@ class SleeperCell(Player): # This player waits...
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
+
+#    class strategem():
+    
 '''
 
 import referee.py as r
@@ -146,8 +183,7 @@ class TheCheat(Player): # This player tries to cheat by peeking
     def __init__(self, id="noID"):
         Player.__init__(self)
     # import referee as r # I don't think I need to do this.
-    def go(self):
-        # make this point to the referee or the thing calling this function
+    def go(self):        # make this point to the referee or the thing calling this function
         try:
             Ref.move1
         except:

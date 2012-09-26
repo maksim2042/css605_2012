@@ -6,6 +6,7 @@ Took original referee and just added a scorecard and some functionality.
 Usage: Type "PlayRPS()" to play Rock,Paper,Scissors
 
 Brendon Fuhs 9-20-2012
+updated 9-26-2012
 
 Need to do something about the scorecard
 '''
