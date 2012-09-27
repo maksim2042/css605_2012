@@ -10,7 +10,8 @@ ID MIGHT NEEED TO BE FED TO SUPER INIT< NOT SURE
 
 import constants as c
 import random
-
+import math
+import itertools as it
 
 class Player():
     def __init__(self, id="noID"):
@@ -77,7 +78,8 @@ class Tit4TatPlayer(Player): # plays opponent's last move
             return(self.move_history[self.moveNum-1][1])
 
 
-# RE-TEST THIS
+# For some reason, this calls me noID when it should be being fed an ID.
+# I think I need to put "self.id=id" in __init__
 class HumanPlayer(Player): # provides a basic interface for humans to play the game
     def __init__(self, id="noID"):
         Player.__init__(self)
@@ -105,7 +107,7 @@ class HumanPlayer(Player): # provides a basic interface for humans to play the g
             self.myScore-=1
             print "You had a draw. Your running score is ", self.myScore
 
-
+# Use math and itertools modules and maybe stats (if available by default) to rewrite this
 class MLPlayer(Player): # uses simple machine learning to estimate probability of next move
     def __init__(self, id="noID"):
         Player.__init__(self)
@@ -143,7 +145,7 @@ class MLPlayer(Player): # uses simple machine learning to estimate probability o
                     myMoveProbs[i] -= self.GREEDINESS * myMoveProbs[i]
                 else:
                     indexToAdjust = i
-            myMoveProbs[i] = 1 - myMoveProbs[(i+1)%3] - myMoveProbs[(i+2)%3]
+            myMoveProbs[indexToAdjust] = 1 - myMoveProbs[(indexToAdjust+1)%3] - myMoveProbs[(indexToAdjust+2)%3]
             
         diceRoll = random.random()
         if diceRoll <= myMoveProbs[0]:
@@ -153,27 +155,143 @@ class MLPlayer(Player): # uses simple machine learning to estimate probability o
         else:
             return(c.CHOICES[2])
 
-    
-
-# FIX
+# Haven't really tested GREED at all
+# Loses unrealistically heavily against MLPlayer, which makes me think
+# that there are circumstances under which it just plays the same thing
+# over and over again, so I need to go back through the logic.
 class MarkovPlayer(Player): # uses Markov processes to estimate sequence of moves for the opponent
     def __init__(self, id="noID"):
         Player.__init__(self)
+        
+        self.DECAY_RATE = 0.01 # Float between 0(never forget) and 1(remember last only(if that?))
+        self.GREEDINESS = 0.0 # Float between -1(random) and 1(totally greedy)
+        self.DEPTH = 3 # int; how many rounds considered as a state
+                        # set to 1 for more-or-less ordinary transition probabilities.
+                        # Keep small or your computer will explode.
+
+        self.possibleRounds = tuple(it.product(c.CHOICES,repeat=2))
+        self.states = tuple(it.product(self.possibleRounds,repeat=self.DEPTH))
+        self.stateResponses = {}
+        for state in self.states:
+            self.stateResponses[state] = [0.1,0.1,0.1]
+
+        
     def go(self):
-        choice=int(random.uniform(0,3))
-        return(c.CHOICES[choice])
+        # Just do random until we have enough move depth
+        lastMoveNum = len(self.move_history)
+        if lastMoveNum <= self.DEPTH+1:
+            choice=int(random.uniform(0,3))
+            return(c.CHOICES[choice])
+
+        lastMove = tuple(self.move_history[lastMoveNum-1][1]) 
+
+        lastState=[("None","None")]*self.DEPTH
+        thisState=[("None","None")]*self.DEPTH
+
+        for i in range(self.DEPTH):
+            lastState[i] = tuple(self.move_history[i+lastMoveNum-self.DEPTH-2])
+            thisState[i] = tuple(self.move_history[i+lastMoveNum-self.DEPTH-1])
+
+        lastState=tuple(lastState)
+        thisState=tuple(thisState)
+        
+        # Tally the last response in terms of the state it was responding to
+        if lastMove == c.ROCK:
+            self.stateResponses[lastState][0] = self.stateResponses[lastState][0] + 1
+        elif lastMove == c.PAPER:
+            self.stateResponses[lastState][1] = self.stateResponses[lastState][1] + 1
+        else:
+            self.stateResponses[lastState][2] = self.stateResponses[lastState][2] + 1
+
+        self.applyDecay()
+        
+        
+        # determine probs for this round
+        numThisState = sum(self.stateResponses[thisState])
+        
+        probsThisRound = [0]*3
+        # for response in self.stateResponses[thisState]:
+        for i in range(3):
+            probsThisRound[i] = self.stateResponses[thisState][i] / float(numThisState)
+
+        # rotate to get neutral-greed move probabilties
+        myMoveProbs = [0]*3
+        for prob in probsThisRound:
+            myMoveProbs[i] = probsThisRound[(i+1)%3]
+
+        myMoveProbs = self.applyGreed(myMoveProbs)
+
+        diceRoll = random.random()
+        if diceRoll <= myMoveProbs[0]:
+            return(c.CHOICES[0])
+        elif diceRoll <= myMoveProbs[0]+myMoveProbs[1]:
+            return(c.CHOICES[1])
+        else:
+            return(c.CHOICES[2])
+
+    def applyDecay(self):
+        for state in self.stateResponses.keys():
+            for i in range(3):
+                self.stateResponses[state][i] *= 1-self.DECAY_RATE
+
+    # maybe recheck this one to comment through
+    def applyGreed(self, probs):
+        
+        if self.GREEDINESS <= 0.0:
+            for i in range(3):
+                probs[i] += self.GREEDINESS * (probs[i] - 1.0/3.0)
+        else:
+            indexToAdjust = -1
+            for i in range(3):
+                if probs[i]==max(probs):
+                    probs[i] += self.GREEDINESS * (1.0 - probs[i])
+                elif probs[i]==min(probs):
+                    probs[i] -= self.GREEDINESS * probs[i]
+                else:
+                    indexToAdjust = i
+            probs[indexToAdjust] = 1 - probs[(indexToAdjust+1)%3] - probs[(indexToAdjust+2)%3]
+            
+        return probs
+
+
 
 # FIX
+# I might not have time to do anything too supercool with this.
 class SleeperCell(Player): # This player waits...
     def __init__(self, id="noID"):
         Player.__init__(self)
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
-
-#    class strategem():
-    
 '''
+    class Strategem():
+        def __init__(self, paramList=[]):
+            #decay
+            #greediness
+            #depth
+
+        def applyDecay():
+            pass
+
+        def applyGreed():
+            pass
+
+        def applyDepth():
+            pass
+        def recommendMove():
+            return a recommendation
+
+    class Adapt(Strategem):
+        pass
+
+    class DeepMarkov(Strategem):
+        pass
+
+    class MLprobs(Strategem):
+        pass
+
+    # fourier/cyclic, treeprobs, etc
+
 
 import referee.py as r
 # These both depend on what's happening with the referee

@@ -11,6 +11,7 @@ updated 9-26-2012
 Need to do something about the scorecard
 '''
 
+# Do I need to import math and itertools here?
 import constants as c
 import player as p
 
