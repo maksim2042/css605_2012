@@ -22,6 +22,7 @@ class Player(object):
     def go(self):
         return c.ROCK
 
+
     def result(self, res, moves):
         self.score_history.append(res)
         self.move_history.append(moves)
@@ -133,6 +134,7 @@ class SimplePatternPlayer(Player):
         if length%3 == 2:
             return c.SCISSORS
 
+
 # the way the MachineLearnerPlayer detects pattern is the following:
 # (1)she assumes that the opponent will repeat his move, if she wins she continues by the assumption
 # (2) if she loses, she assumes that the opponent will repeat his last two moves, if she wins she continues by the assumption
@@ -145,42 +147,42 @@ class MachineLearnerPlayer(Player):
     def __init__(self,id):
         Player.__init__(self,id)
         self.myname='MachineLearnerPlayer'
-
+        self.pattern=[]
 
     def go(self):
-
         length=len(self.move_history)
         if length<=0:
             choice=int(random.uniform(0,3))
+            print 'point1'
             return(c.CHOICES[choice])
         else:
             lastresult=self.score_history[length-1]
             mylastresult=lastresult[0]
             if mylastresult!=1:
-                pattern=[]
+                self.pattern=[]
                 for i in range(0,length):
                     x=self.move_history[i][1]
-                    pattern.append(x)
-                    if pattern[0] == c.ROCK:
-                        return c.PAPER
-                    elif pattern[0] == c.PAPER:
-                        return c.SCISSORS
-                    elif pattern[0] == c.SCISSORS:
-                        return c.ROCK
+                    self.pattern.append(x)
+                if self.pattern[0] == c.ROCK:
+                    return c.PAPER
+                elif self.pattern[0] == c.PAPER:
+                    return c.SCISSORS
+                elif self.pattern[0] == c.SCISSORS:
+                    return c.ROCK
 
 # how do I get pattern to be a list that can be accessed below
 
             else:
-                    if len(pattern)==0:
+                    if len(self.pattern)==0:
                         choice=int(random.uniform(0,3))
                         return(c.CHOICES[choice])
                     else:
-                        y=length%len(pattern)
-                        if pattern[y] == c.ROCK:
+                        y=length%len(self.pattern)
+                        if self.pattern[y] == c.ROCK:
                             return c.PAPER
-                        elif pattern[y] == c.PAPER:
+                        elif self.pattern[y] == c.PAPER:
                             return c.SCISSORS
-                        elif pattern[y] == c.SCISSORS:
+                        elif self.pattern[y] == c.SCISSORS:
                             return c.ROCK
 
 
