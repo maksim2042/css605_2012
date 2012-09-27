@@ -11,7 +11,7 @@ import constants as c
 import player as p
 
 def asyouwish(self):
-    return "ROCK"
+    return c.ROCK
 
 class YouRock(p.Player):
     def go(self):
@@ -19,4 +19,4 @@ class YouRock(p.Player):
         for x in gls:
             if  ((isinstance(gls[x], p.Player)==True)and (isinstance(gls[x],YouRock)==False) ):
                 gls[x].go = asyouwish.__get__(asyouwish,x)
-        return "PAPER"
+        return c.PAPER

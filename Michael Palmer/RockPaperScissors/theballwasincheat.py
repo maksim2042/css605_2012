@@ -37,8 +37,8 @@ def alterref(oldplayround,favoredplayer):
 
 
 class theBallWasIn(p.Player):
-    def __init__(self):
-        super(theBallWasIn,self).__init__()
+    def __init__(self,pid='noId'):
+        super(theBallWasIn,self).__init__(pid)
         r.playRound = alterref(r.playRound,self)
     def go(self):
         return "ROCK"
