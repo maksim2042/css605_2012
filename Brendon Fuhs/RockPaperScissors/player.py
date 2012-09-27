@@ -13,7 +13,9 @@ import random
 import math
 import itertools as it
 
+
 class Player():
+    
     def __init__(self, id="noID"):
         self.myScore=0
         self.score_history=[]
@@ -37,39 +39,50 @@ class Player():
             self.myScore-=1
 
 
-
 class RandomPlayer(Player): # plays random moves all the time
+    
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
+        
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
 
 
 class StupidPlayer(Player): # plays the same move over and over
+    
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
         self.stickToYerGuns = c.CHOICES[int(random.uniform(0,3))]
+        
     def go(self):
         return(self.stickToYerGuns)
 
 
 class SequencePlayer(Player): # plays the same sequence over and over
+    
     def __init__(self, id="noID"):
         Player.__init__(self)
+        self.id=id
         self.SEQUENCELENGTH = 42
         self.magicSequence = [" "]*self.SEQUENCELENGTH
         for i in range(self.SEQUENCELENGTH):
             self.magicSequence[i] = c.CHOICES[int(random.uniform(0,3))]
         self.moveNum = 0
+        
     def go(self):
         return(self.magicSequence[self.moveNum % self.SEQUENCELENGTH])
 
 
 class Tit4TatPlayer(Player): # plays opponent's last move
+    
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
         self.moveNum = -1 # Will change to proper moveNum at beginning of turns
+
     def go(self):
         self.moveNum += 1
         if self.moveNum == 0:
@@ -78,11 +91,11 @@ class Tit4TatPlayer(Player): # plays opponent's last move
             return(self.move_history[self.moveNum-1][1])
 
 
-# For some reason, this calls me noID when it should be being fed an ID.
-# I think I need to put "self.id=id" in __init__
 class HumanPlayer(Player): # provides a basic interface for humans to play the game
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
+        
     def go(self):
 
         print "Dear ", self.id, ", "
@@ -107,10 +120,12 @@ class HumanPlayer(Player): # provides a basic interface for humans to play the g
             self.myScore-=1
             print "You had a draw. Your running score is ", self.myScore
 
-# Use math and itertools modules and maybe stats (if available by default) to rewrite this
+# Use math and itertools modules and maybe stats (if available by default) to rewrite this one
 class MLPlayer(Player): # uses simple machine learning to estimate probability of next move
+
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
         self.DECAY_RATE = 0.01 # Float between 0(never forget) and inf(remember last only)
         self.GREEDINESS = 0.0 # Float between -1(random) and 1(totally greedy)
         self.enemyMoveProbs = { c.ROCK: 1.0/3.0,
@@ -155,13 +170,12 @@ class MLPlayer(Player): # uses simple machine learning to estimate probability o
         else:
             return(c.CHOICES[2])
 
-# Haven't really tested GREED at all
-# Loses unrealistically heavily against MLPlayer, which makes me think
-# that there are circumstances under which it just plays the same thing
-# over and over again, so I need to go back through the logic.
+
 class MarkovPlayer(Player): # uses Markov processes to estimate sequence of moves for the opponent
+
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
         
         self.DECAY_RATE = 0.01 # Float between 0(never forget) and 1(remember last only(if that?))
         self.GREEDINESS = 0.0 # Float between -1(random) and 1(totally greedy)
@@ -183,7 +197,7 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
             choice=int(random.uniform(0,3))
             return(c.CHOICES[choice])
 
-        lastMove = tuple(self.move_history[lastMoveNum-1][1]) 
+        lastMove = self.move_history[lastMoveNum-1][1]
 
         lastState=[("None","None")]*self.DEPTH
         thisState=[("None","None")]*self.DEPTH
@@ -194,17 +208,17 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
 
         lastState=tuple(lastState)
         thisState=tuple(thisState)
-        
+
         # Tally the last response in terms of the state it was responding to
         if lastMove == c.ROCK:
-            self.stateResponses[lastState][0] = self.stateResponses[lastState][0] + 1
+            self.stateResponses[lastState][0] += 1
         elif lastMove == c.PAPER:
-            self.stateResponses[lastState][1] = self.stateResponses[lastState][1] + 1
+            self.stateResponses[lastState][1] += 1
         else:
-            self.stateResponses[lastState][2] = self.stateResponses[lastState][2] + 1
+            self.stateResponses[lastState][2] += 1
 
         self.applyDecay()
-        
+
         
         # determine probs for this round
         numThisState = sum(self.stateResponses[thisState])
@@ -213,14 +227,16 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
         # for response in self.stateResponses[thisState]:
         for i in range(3):
             probsThisRound[i] = self.stateResponses[thisState][i] / float(numThisState)
-
+    
         # rotate to get neutral-greed move probabilties
         myMoveProbs = [0]*3
-        for prob in probsThisRound:
-            myMoveProbs[i] = probsThisRound[(i+1)%3]
+        for i in range(3):
+            myMoveProbs[i] = probsThisRound[(i-1)%3]
 
+        # apply greed
         myMoveProbs = self.applyGreed(myMoveProbs)
-
+        
+        # roll the dice to decide more
         diceRoll = random.random()
         if diceRoll <= myMoveProbs[0]:
             return(c.CHOICES[0])
@@ -232,7 +248,7 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
     def applyDecay(self):
         for state in self.stateResponses.keys():
             for i in range(3):
-                self.stateResponses[state][i] *= 1-self.DECAY_RATE
+                self.stateResponses[state][i] *= (1-self.DECAY_RATE)
 
     # maybe recheck this one to comment through
     def applyGreed(self, probs):
@@ -258,8 +274,11 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
 # FIX
 # I might not have time to do anything too supercool with this.
 class SleeperCell(Player): # This player waits...
+    
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
+        
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
@@ -299,7 +318,8 @@ import referee.py as r
 # This isn't working properly
 class TheCheat(Player): # This player tries to cheat by peeking
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
+        self.id=id
     # import referee as r # I don't think I need to do this.
     def go(self):        # make this point to the referee or the thing calling this function
         try:
@@ -312,7 +332,7 @@ class TheCheat(Player): # This player tries to cheat by peeking
 
 class TheAssassin(Player)
     def __init__(self, id="noID"):
-        Player.__init__(self)
+        Player.__init__(self, id="noID")
     def go(self):
         del p2
 '''

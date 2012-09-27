@@ -11,20 +11,25 @@ updated 9-26-2012
 Need to do something about the scorecard
 '''
 
-# Do I need to import math and itertools here?
 import constants as c
 import player as p
 
+
+# Referee keeps a scorecard, makes players play, and tells them their result
 class Referee():
+    
     def __init__(self):
         self.scorecard = {}
         self.lastResult = [0,0]
+        
     def resetScore(self):
         self.scorecard = {}
         
     def playRound(self, p1, p2):
         move1=p1.go()
+        # print p1.id, " plays ", move1 ############# CAN REMORE THESE LINES
         move2=p2.go()
+        # print p2.id, " plays ", move2 #############
         result=list(c.PAYOFFS[move1,move2])
         for j in range(2):
             self.lastResult[j] = self.lastResult[j] + result[j]
@@ -137,7 +142,7 @@ def createPlayer():
     choice = requestChoice(len(playerTypeMenu)+1)
     print " "
     
-    if choice == 9: # Doing this before I add an id to the name list
+    if choice == 9: # Escape hatch before I add an id to the name list
         return
     
     playerNameList.insert(0, id)
@@ -177,7 +182,10 @@ def deletePlayer():
     if choice == len(playerNameList)+1:
         pass
     else:
+        try: del Ref.scorecard[playerNameList[choice-1]]
+        except: pass
         del playerList[choice-1]
+        del playerNameList[choice-1]
 
 # prints a list with numbers to the left
 def showMenu(menu):
