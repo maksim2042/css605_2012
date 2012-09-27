@@ -18,7 +18,7 @@ class Player(object):
         self.move_history=[]
         self.playerID=playerID
         self.pstrategy=pstrategy
-        print '%s is a %s' % (self.playerID,self.pstrategy)  
+        print '%s : %s' % (self.playerID,self.pstrategy)  
 
     def getplayerID(self):
         return self.playerID
@@ -28,12 +28,12 @@ class Player(object):
         self.move_history.append(moves)
         if res[0]==1: 
             self.myScore+=1
-            print "I WON!!! ", self.myScore
+            print "%s GOOD CHOICE (with %d points so far) " %(self.playerID, self.myScore)
         elif res[0]==0:
-            print 'DRAW ', self.myScore
+            print '%s DRAW (with %d points so far)' %(self.playerID, self.myScore)
         else:
             self.myScore-=1
-            print 'I LOST :((( ', self.myScore
+            print '%s BAD CHOICE (with %d points so far)' %(self.playerID, self.myScore)
 
 class RandomPlayer(Player):
     def __init__(self, playerID,pstrategy='Random Player'):
@@ -45,8 +45,23 @@ class RandomPlayer(Player):
 
 c
 class StupidPlayer(Player):
-    def __init__(self, playerID,pstrategy='StupidPlayer'):
-        Player.__init__(self,playerID,'StupidPlayer')
+    def __init__(self, playerID,pstrategy='Stupid Player'):
+        Player.__init__(self,playerID,'Stupid Player')
        
     def strategy(self):
         return c.ROCK
+
+class HumanPlayer(Player):
+    def __init__(self, playerID,pstrategy='Human Player'):
+        Player.__init__(self,playerID,'Human Player')
+       
+    def strategy(self):
+        try:
+            choice=10
+            while (choice)>2:
+                choice=int(raw_input('Input 0 (ROCK), 1 (PAPER), 2 (SCISSORS):'))
+                if choice > 2:
+                    print 'wrong number!'
+            return (c.CHOICES[choice])
+        except ValueError, e:
+            print e # output: "integer division or modulo by zero"
