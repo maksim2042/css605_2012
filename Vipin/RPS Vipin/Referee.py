@@ -15,12 +15,12 @@ def playRound(p1,p2):
     result.reverse()
     p2.result(result,[move2,move1])
 
-p1 = p.MachineLearnerPlayer()
-p2 = p.PatternPlayer()
+p1 = p.SimplePatternPlayer(id)
+p2 = p.MachineLearnerPlayer(id)
 
 
 def playGame():
-    for i in range(20):
+    for i in range(100):
         playRound(p1,p2)
 
 playGame()
