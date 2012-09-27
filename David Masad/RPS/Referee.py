@@ -50,7 +50,7 @@ class Referee:
 
     def play_game(self):
         '''
-
+        Have the players play for number_of_rounds rounds and report the score.
         '''
 
         player_scores = defaultdict(int)
