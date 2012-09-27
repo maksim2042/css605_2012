@@ -1,5 +1,5 @@
 """
-This class implements a very stupid simple player for the RPS game
+
 """
 import constants as c
 import random
@@ -151,11 +151,11 @@ class MyPlayer(Player):
 			self.cal_paper()
 			self.cal_scissors()
 			if (self.dist_r<=self.dist_p) and (self.dist_r<=self.dist_s):
-				self.choice='ROCK'
-			elif (self.dist_p<=self.dist_r) and (self.dist_p<=self.dist_s):
 				self.choice='PAPER'
-			else:
+			elif (self.dist_p<=self.dist_r) and (self.dist_p<=self.dist_s):
 				self.choice='SCISSORS'
+			else:
+				self.choice='ROCK'
 			return (self.choice)
 		
 	def cal_rock(self):
@@ -164,7 +164,7 @@ class MyPlayer(Player):
 		self.op_r=self.o_player.count('ROCK')
 		self.temp_op=self.o_player
 		if self.o_player.count('ROCK')==0:
-			self.dirt_r=100
+			self.dist_r=100
 			return (self.dist_r)
 		else:
 			w=self.temp_op.index('ROCK')
@@ -185,7 +185,7 @@ class MyPlayer(Player):
 			if self.last_r-1<self.avg_r:
 				self.dist_r=self.avg_r-(self.last_r-1)
 			else:
-				self.dist_r=10
+				self.dist_r=100
 			return self.dist_r
 	
 	def cal_paper(self):
@@ -194,15 +194,15 @@ class MyPlayer(Player):
 		self.op_p=self.o_player.count('PAPER')
 		self.temp_op=self.o_player
 		if self.o_player.count('PAPER')==0:
-			self.dirt_r=100
-			return (self.dist_r)
+			self.dist_p=100
+			return (self.dist_p)
 		else:
 			w=self.temp_op.index('PAPER')
 			self.dbh_p.append(w+1)
 			while w>0 or self.op_p>1:
-				self.temp_o_player=self.temp_op[w+1:]
+				self.temp_op=self.temp_op[w+1:]
 				try:
-					w=self.temp_o_player.index('PAPER')
+					w=self.temp_op.index('PAPER')
 				except:
 					break
 			self.dbh_p.append(w+1)
@@ -215,7 +215,7 @@ class MyPlayer(Player):
 			if self.last_r-1<self.avg_p:
 				self.dist_p=self.avg_p-(self.last_p-1)
 			else:
-				self.dist_p=10
+				self.dist_p=100
 			return self.dist_p
 		
 	def cal_scissors(self):
@@ -224,13 +224,13 @@ class MyPlayer(Player):
 		self.op_s=self.o_player.count('SCISSORS')
 		self.temp_op=self.o_player
 		if self.o_player.count('SCISSORS')==0:
-			self.dirt_r=100
-			return (self.dist_r)
+			self.dist_s=100
+			return (self.dist_s)
 		else:
 			w=self.temp_op.index('SCISSORS')
 			self.dbh_s.append(w+1)
-			while w>0 or self.op_scissors>1:
-				self.temp_o_player=self.temp_op[w+1:]
+			while w>0 or self.op_s>1:
+				self.temp_op=self.temp_op[w+1:]
 				try:
 					w=self.temp_op.index('SCISSORS')
 				except:
@@ -245,5 +245,10 @@ class MyPlayer(Player):
 			if self.last_r-1<self.avg_s:
 				self.dist_s=self.avg_s-(self.last_s-1)
 			else:
-				self.dist_s=10
+				self.dist_s=100
 			return self.dist_s
+			
+
+		
+	
+
