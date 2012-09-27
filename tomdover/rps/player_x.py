@@ -1,5 +1,7 @@
 """
-
+TOM DOVER
+CS 605
+FALL 2012
 """
 import constants as c
 import random
