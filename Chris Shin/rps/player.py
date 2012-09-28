@@ -87,4 +87,49 @@ class TfTPlayer(Player):
 			return(c.CHOICES[choice])
 
 		else:
-			return self.move_history[len(self.move_history) -1][1]
+			return self.move_history[len(self.move_history) - 1][1]
+
+class MLPlayer(Player):
+	def __init__(self):
+		Player.__init__(self)
+
+	def go(self):
+		MLprob = {'ROCK': 1.0/3.0, 'PAPER': 1.0/3.0, 'SCISSORS': 1.0/3.0}
+		m = max(MLprob.values())
+		e = 0.0005
+ 		if (len(self.move_history) == 0):
+			choice=int(random.uniform(0,3))
+			return(c.CHOICES[choice])
+
+		else:
+
+			if self.score_history[len(self.score_history) - 1][0] == - 1:
+				if self.move_history[len(self.move_history) - 1][0] == 'ROCK':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 - e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 + (0.5 * e))
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 + (0.5 * e))
+				elif self.move_history[len(self.move_history) - 1][0] == 'PAPER':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 + 0.5 * e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 - e)
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 + 0.5 * e)
+				elif self.move_history[len(self.move_history) - 1][0] == 'SCISSORS':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 + 0.5 * e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 + 0.5 * e)
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 - e)
+			elif self.score_history[len(self.score_history) - 1][0] == 1:
+				if self.move_history[len(self.move_history) - 1][0] == 'ROCK':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 + e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 - 0.5 * e)
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 - 0.5 * e)
+				elif self.move_history[len(self.move_history) - 1][0] == 'PAPER':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 - 0.5 * e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 + e)
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 - 0.5 * e)
+				elif self.move_history[len(self.move_history) - 1][0] == 'SCISSORS':
+					MLprob['ROCK'] = MLprob['ROCK'] * (1 - 0.5 * e)
+					MLprob['PAPER'] = MLprob['PAPER'] * (1 - 0.5 * e)
+					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 + e)
+			
+			return MLprob[m] # need to figure out
+
+			
