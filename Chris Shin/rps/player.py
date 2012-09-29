@@ -97,12 +97,12 @@ class MLPlayer(Player):
 		MLprob = {'ROCK': 1.0/3.0, 'PAPER': 1.0/3.0, 'SCISSORS': 1.0/3.0}
 		m = max(MLprob.values())
 		e = 0.0005
+		key = [k for k, v in MLprob.iteritems() if v == m ][0]
  		if (len(self.move_history) == 0):
 			choice=int(random.uniform(0,3))
 			return(c.CHOICES[choice])
 
 		else:
-
 			if self.score_history[len(self.score_history) - 1][0] == - 1:
 				if self.move_history[len(self.move_history) - 1][0] == 'ROCK':
 					MLprob['ROCK'] = MLprob['ROCK'] * (1 - e)
@@ -129,7 +129,4 @@ class MLPlayer(Player):
 					MLprob['ROCK'] = MLprob['ROCK'] * (1 - 0.5 * e)
 					MLprob['PAPER'] = MLprob['PAPER'] * (1 - 0.5 * e)
 					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 + e)
-			
-			return MLprob[m] # need to figure out
-
-			
+			return key
