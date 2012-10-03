@@ -130,3 +130,26 @@ class MLPlayer(Player):
 					MLprob['PAPER'] = MLprob['PAPER'] * (1 - 0.5 * e)
 					MLprob['SCISSORS'] = MLprob['SCISSORS'] * (1 + e)
 			return key
+
+class MarkovPlayer(Player):
+	def __init__(self):
+		Player.__init__(self)
+
+	def go(self):
+		Mar_list = []
+		Mar_counter={}
+		Mar = sorted(Mar_counter, key = Mar_counter.get, reverse = True)
+		Markov = Mar[:1]
+		if (len(self.move_history) == 0):
+			choice=int(random.uniform(0,3))
+			return(c.CHOICES[choice])
+
+		else:
+			if self.score_history[len(self.score_history) - 1][0] == + 1:
+				Mar_list.append(self.move_history[len(self.move_history) - 1][0])
+				for strat in Mar_list:
+					if strat in Mar_counter:
+						Mar_counter[word] += 1
+					else:
+						Mar_counter[word] = 1
+			return Markov 		
