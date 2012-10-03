@@ -12,7 +12,7 @@ def yankenpoRound(p1, p2): #HERE WE DO ONE GAME
     move1=p1.strategy()   #WE GET THE CHOICE OF PLAYER ONE
     move2=p2.strategy()   #WE GET THE CHOICE OF PLAYER TWO
     choice=list(c.PAYOFFS[move1,move2]) #WE STORE THE CHOICES IN A LIST
-    p1.result(choice,[move1,move2]) # WE PASS THE RESULT, PLAYER ONE WILL KNOW RESULT - IN [0] IS THE SCORE
+    p1.result(choice,[move1,move2]) # WE PASS THE RESULT, PLAYER ONE WILL KNOW RESULT - IN choice[0] IS THE SCORE
     choice.reverse() # WE REVERSE THE ORDER OF THE LIST, SO ELEMENT [0] IS THE SCORE!!
     p2.result(choice,[move2,move1]) # WE PASS THE RESULT, PLAYER ONE WILL KNOW RESULT
 
