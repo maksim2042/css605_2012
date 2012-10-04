@@ -40,6 +40,25 @@ class StupidPlayer(Player):
     
     def go(self):
         return c.CHOICES[1]
+        
+class SequencePlayer(Player):
+    def __init__(self):
+        Player.__init__(self)
+    
+    def go(self):
+
+        movelength = len(self.move_history)
+        
+        if movelength <= 0:
+            choice = int(random.uniform(0,3))
+            return (c.CHOICES[choice])
+        elif self.move_history[movelength-1][0] == c.CHOICES[0]:
+            return c.CHOICES[1]
+        elif self.move_history[movelength-1][0] == c.CHOICES[1]:
+            return c.CHOICES[2]
+        elif self.move_history[movelength-1][0] == c.CHOICES[2]:
+            return c.CHOICES[0]
+        
 
 class RandomPlayer(Player):
     def __init__(self):
