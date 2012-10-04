@@ -81,6 +81,20 @@ class T4TPlayer(Player):
 			i=c.CHOICES.index(b)
 			self.choice=self.CHOICES[i]
 		return (self.choice)
+
+class AltT4TPlayer(Player):
+	def __init__(self):
+		Player.__init__(self)
+		
+	def go(self):
+		if len(self.move_history)==0:
+			self.choice=random.choice(c.CHOICES)
+		else:
+			a=self.move_history[-1]
+			b=a[-1]
+			i=c.CHOICES.index(b)
+			self.choice=c.CHOICES[i]
+		return (self.choice)
 		
 class SeqPlayer(Player):
 	def __init__(self):
