@@ -6,10 +6,14 @@ import random
 
 class Player(object):
 	
-	def __init__(self):
+	def __init__(self, id="noID"):
 		self.myScore=0
 		self.score_history=[]
 		self.move_history=[]
+		self.id=id
+	
+	def getID():
+		return self.id
 	
 	def go(self):
 		return c.ROCK
@@ -27,7 +31,7 @@ class Player(object):
 			print 'I LOST :((( ', self.myScore
 		
 class RandomPlayer(Player):
-	def __init__(self):
+	def __init__(self, id="noID"):
 		Player.__init__(self)
 	
 	def go(self):
@@ -35,7 +39,7 @@ class RandomPlayer(Player):
 		return(c.CHOICES[choice])
 	
 class Tit4TatPlayer(Player):
-	def __init__(self):
+	def __init__(self, id="noID"):
 		Player.__init__(self)
 		
 	def go(self):
@@ -50,7 +54,7 @@ class Tit4TatPlayer(Player):
 			return(c.CHOICES[choice])
 		
 class HumanPlayer(Player):
-	def __init__(self):
+	def __init__(self, id="noID"):
 		Player.__init__(self)
 	
 	def go(self):
@@ -58,7 +62,7 @@ class HumanPlayer(Player):
 		return move
 	
 class SequencePlayer(Player):
-	def __init__(self):
+	def __init__(self, id="noID"):
 		Player.__init__(self)
 		
 	def go(self):	
