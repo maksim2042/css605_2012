@@ -4,7 +4,6 @@ player.py
 
 additional players added by Brendon Fuhs
 
-ID MIGHT NEEED TO BE FED TO SUPER INIT< NOT SURE
 
 '''
 
@@ -269,10 +268,6 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
             
         return probs
 
-
-
-# FIX
-# I might not have time to do anything too supercool with this.
 class SleeperCell(Player): # This player waits...
     
     def __init__(self, id="noID"):
@@ -282,57 +277,122 @@ class SleeperCell(Player): # This player waits...
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
-'''
-    class Strategem():
-        def __init__(self, paramList=[]):
-            #decay
-            #greediness
-            #depth
 
-        def applyDecay():
-            pass
-
-        def applyGreed():
-            pass
-
-        def applyDepth():
-            pass
-        def recommendMove():
-            return a recommendation
-
-    class Adapt(Strategem):
-        pass
-
-    class DeepMarkov(Strategem):
-        pass
-
-    class MLprobs(Strategem):
-        pass
-
-    # fourier/cyclic, treeprobs, etc
-
-
-import referee.py as r
-# These both depend on what's happening with the referee
-
-# This isn't working properly
-class TheCheat(Player): # This player tries to cheat by peeking
+# FIX - actually no, delete this one
+# I might not have time to do anything too supercool with this.
+class SleeperCell(Player): # This player waits...
+    
     def __init__(self, id="noID"):
         Player.__init__(self, id="noID")
         self.id=id
-    # import referee as r # I don't think I need to do this.
-    def go(self):        # make this point to the referee or the thing calling this function
-        try:
-            Ref.move1
-        except:
-            return(c.CHOICES[int(random.uniform(0,3))])
-        for i in range(3):
-            if Ref.move1 == c.CHOICES[i]:
-                return c.CHOICES[(i+1)%3]
+        self.ALWAYS_WAIT = 50
+        self.ADDED_WAIT_CHANCE = 49.0/50.0
+        self.stillRandom == True
+        self.a = 1.0/3.0
+        self.b = 0.0
+        self.c = 0.0
+        
+    def go(self):
+        lastMoveNum = len(self.move_history)
+        if lastMoveNum <= self.ALWAYS_WAIT:
+            choice=int(random.uniform(0,3))
+            return(c.CHOICES[choice])
+        if (random.random() <= self.ADDED_DECAY_CHANCE) & (self.stillRandom == True):
+            choice=int(random.uniform(0,3))
+            self.stillRandom = False
+            return(c.CHOICES[choice])
 
-class TheAssassin(Player)
+    # Now it wakes up
+
+
+    def sumOfSquaredError(funct, xList, dataList):
+        squErr = 0
+        for i in len(dataList):
+            squErr += math.pow( funct(dataList[i]) - funct(xList[i]) , 2 )
+        return squErr
+
+    def polyEval(x, paramList):  # Change this to Moore/hook/whatever eval style
+        poly = 0
+        for i in len(paramList):
+            poly += paramList[i]*pow(x,i)
+        return poly
+        
+# Maybe I should be populating state based on opponent's moves?
+class Evolvatron1000(Player):
+
     def __init__(self, id="noID"):
         Player.__init__(self, id="noID")
+        self.id=id
+        self.STATENUM = 10000
+        self.MACHINENUM = 1000
+
+        self.machineSet = set()
+        for i in range(self.MACHINENUM):
+            self.machineSet.add(Machine(self.STATENUM))
+
+        self.machineScores = {}
+        self.machineMoves = {}
+        for machine in self.machineSet:
+            self.machineScores[machine] = 0
+            self.machineMoves[machine] = c.CHOICES[ int(random.uniform(0,3)) ] # This is probably unnecessary.
+        
+    class Machine():
+        def __init__(self, statenum=10):
+            self.stateDict = {}     # Not sure if I should be using sets or dicts for this.
+            self.statenum = statenum
+            for i in range(self.statenum):
+                blankState = {}
+                self.stateDict[i] = blankState
+            for i in range(self.statenum):
+                randomizeState(self.stateDict[i])
+            self.currentState = stateDict[0] # Use 0 as the starting state
+
+        # Should I make these methods know less?
+
+        def randomizeState(state):  
+            for move in c.CHOICES:
+                state[move] = ( c.CHOICES[ int(random.uniform(0,3)) ] ,
+                                self.stateDict[ int(random.uniform(0,self.statenum-1)) ] )
+
+        def tickMachine():
+            self.currenState = self.currentState[1]
+
+    #   self.myScore=0
+    #   self.score_history=[]
+    #   self.move_history=[]
+    #   self.id=id
+
+
     def go(self):
-        del p2
-'''
+
+        opponentMoved = self.move_history[-1][1]
+        
+        # update machinescores
+        
+        # mutate stuff
+
+        
+        # get machine moves
+        for machine in self.machineSet:
+            self.machineMoves = machine.currentState[opponentMoved][0]
+        
+        # determine final move
+
+        finalMove = max(machineMoves.values(), key=machineMoves.values().count) # Yay google
+
+        # But only one of the machines gave me this move!
+        # Maybe I should just make one machine and have it learn or something?
+
+
+    # get rid of this
+    def result(self, res, moves):
+        self.score_history.append(res)
+        self.move_history.append(moves)
+        if res[0]==1: 
+            self.myScore+=1
+        elif res[0]==0:
+            pass
+        else:
+            self.myScore-=1
+
+        

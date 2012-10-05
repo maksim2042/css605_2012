@@ -6,7 +6,7 @@ Took original referee and just added a scorecard and some functionality.
 Usage: Type "PlayRPS()" to play Rock,Paper,Scissors
 
 Brendon Fuhs 9-20-2012
-updated 9-26-2012
+updated 9-27-2012
 
 Need to do something about the scorecard
 '''
@@ -27,7 +27,7 @@ class Referee():
         
     def playRound(self, p1, p2):
         move1=p1.go()
-        # print p1.id, " plays ", move1 ############# CAN REMORE THESE LINES
+        # print p1.id, " plays ", move1 ############# CAN REMOVE THESE LINES
         move2=p2.go()
         # print p2.id, " plays ", move2 #############
         result=list(c.PAYOFFS[move1,move2])
