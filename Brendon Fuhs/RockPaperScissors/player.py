@@ -4,6 +4,7 @@ player.py
 
 additional players added by Brendon Fuhs
 
+I should probably rewrite some of these.
 
 '''
 
@@ -269,6 +270,7 @@ class MarkovPlayer(Player): # uses Markov processes to estimate sequence of move
         return probs
 
 class SleeperCell(Player): # This player waits...
+                            # FOREVER BECAUSE I HAVEN'T MADE IT YET!!!
     
     def __init__(self, id="noID"):
         Player.__init__(self, id="noID")
@@ -278,6 +280,7 @@ class SleeperCell(Player): # This player waits...
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
 
+'''
 # FIX - actually no, delete this one
 # I might not have time to do anything too supercool with this.
 class SleeperCell(Player): # This player waits...
@@ -316,83 +319,7 @@ class SleeperCell(Player): # This player waits...
         for i in len(paramList):
             poly += paramList[i]*pow(x,i)
         return poly
-        
-# Maybe I should be populating state based on opponent's moves?
-class Evolvatron1000(Player):
+'''      
 
-    def __init__(self, id="noID"):
-        Player.__init__(self, id="noID")
-        self.id=id
-        self.STATENUM = 10000
-        self.MACHINENUM = 1000
-
-        self.machineSet = set()
-        for i in range(self.MACHINENUM):
-            self.machineSet.add(Machine(self.STATENUM))
-
-        self.machineScores = {}
-        self.machineMoves = {}
-        for machine in self.machineSet:
-            self.machineScores[machine] = 0
-            self.machineMoves[machine] = c.CHOICES[ int(random.uniform(0,3)) ] # This is probably unnecessary.
-        
-    class Machine():
-        def __init__(self, statenum=10):
-            self.stateDict = {}     # Not sure if I should be using sets or dicts for this.
-            self.statenum = statenum
-            for i in range(self.statenum):
-                blankState = {}
-                self.stateDict[i] = blankState
-            for i in range(self.statenum):
-                randomizeState(self.stateDict[i])
-            self.currentState = stateDict[0] # Use 0 as the starting state
-
-        # Should I make these methods know less?
-
-        def randomizeState(state):  
-            for move in c.CHOICES:
-                state[move] = ( c.CHOICES[ int(random.uniform(0,3)) ] ,
-                                self.stateDict[ int(random.uniform(0,self.statenum-1)) ] )
-
-        def tickMachine():
-            self.currenState = self.currentState[1]
-
-    #   self.myScore=0
-    #   self.score_history=[]
-    #   self.move_history=[]
-    #   self.id=id
-
-
-    def go(self):
-
-        opponentMoved = self.move_history[-1][1]
-        
-        # update machinescores
-        
-        # mutate stuff
-
-        
-        # get machine moves
-        for machine in self.machineSet:
-            self.machineMoves = machine.currentState[opponentMoved][0]
-        
-        # determine final move
-
-        finalMove = max(machineMoves.values(), key=machineMoves.values().count) # Yay google
-
-        # But only one of the machines gave me this move!
-        # Maybe I should just make one machine and have it learn or something?
-
-
-    # get rid of this
-    def result(self, res, moves):
-        self.score_history.append(res)
-        self.move_history.append(moves)
-        if res[0]==1: 
-            self.myScore+=1
-        elif res[0]==0:
-            pass
-        else:
-            self.myScore-=1
 
         

@@ -1,4 +1,11 @@
 '''
+
+***********
+** 
+**  OBSOLETE; USE EVOLVOTRON INSTEAD IF IT WORKS. (10-6-12)
+** 
+***********
+
 referee.py
 
 Took original referee and just added a scorecard and some functionality.
@@ -53,7 +60,7 @@ playerList = []
 playerNameList = []
 
 print "Type \"PlayRPS()\""
-
+print "I'm obsolete, don't use me. Use Evolvotron instead."
 
 def PlayRPS():
 

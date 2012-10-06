@@ -1,7 +1,9 @@
 '''
 playermachine.py
 
-10-5-12
+10-6-12
+
+Brendon Fuhs
 
 '''
 
@@ -37,48 +39,120 @@ class Player():
 
 
 # Finite State Machine Player
+# 
 class FSM(Player):
 
     ######## Seems like multiple optional inputs could confuse things.
-    def __init__(self, id="noID", nodeNum=1, genome=None):
+    def __init__(self, id="noID", nodeNum=1, nodeList=None):
+        Player.__init__(self, id="noID")
+        self.SWAPAMOUNT = 0.1 # Size of cross-over portion, I have no idea if this is good
+                                # Maybe I should make this vary between .01 and .5 randomly?
+        self.MUTATIONRATE = 0.05 # I have not idea what this should be.
+                                # Maybe it should start higher and decrease with time?
         self.id=id
-        self.nodeNum = nodeNum # number of states in machine
-        self.nodeList = [{}]*nodeNum # This will be a list of nodes in the machine
-        self.genome = genome
-
-        if genome==None: # Randomize the machine if no genome is supplied
-            self.nodeList = map(randomizeNode,self.nodeList)
-        else:
-            buildMachine(genome)
-
-        self.currentNode = self.nodeList[0] # Start at 0
-
-    def go(self):
-        opponentMoved = self.move_history[-1][1]
-        return respondTo(opponentMoved)
+        self.nodeList = nodeList # This will be a list of nodes in the machine
+        
+        if self.nodeList==None: # Populate a random machine if none supplied
+            self.nodeList = [{}]*nodeNum
+            self.nodeList = map(self.randomizeNode,self.nodeList)
+            
+        self.nodeNum = len(self.nodeList) # number of states in machine
+        self.currentNode = self.nodeList[0] # Zero is start
 
     # Randomizes the contents of a state / node
-    def randomizeNode(node): # Do I need to feed this nodeNum?
+    def randomizeNode(self,node): # Do I need to feed this nodeNum?
         for possibleOpponentMove in node.keys():
-            node[possibleOpponentMove] = { "output" =  c.CHOICES[r.randint(0,2)],
-                                           "nextNode" = nodeList[r.randint(0,nodeNum)] }
+            node[possibleOpponentMove] = { "output" :  c.CHOICES[r.randint(0,2)],
+                                           "nextNode" : nodeList[r.randint(0,nodeNum)] }
         return node
 
-    # This gets the machine's move and iterates the machine to the next state
-    def respondTo(opponentMove):
+    # This returns the machine's move and iterates it to the next state
+    def go(self):
+        opponentMoved = self.move_history[-1][1]
         ourResponse = self.currentNode[opponentMove]
         self.currentNode = ourResponse["nextNode"]
         return ourResponse["output"]
 
-    def buildMachine(genome):
-        pass ############# Build machine based on a genome
+    # This reaches into another player, mixes genetic material with it,
+    # applies mutation, and returns nodeLists for (ONE OR TWO???) children
+    def mateWith(self,otherFSM):
 
-    def getGenome():
-        pass ############# I might only need to extract a genome once if I don't mutate in-house
-                            # Or the randomization can happen before the building and I don't
-                            # need to even worry about it.
-    def mutate():
-        pass ############# Do I want a mutate method?
+        # Maybe change indices to swap to an anonymous list of two lists
+        indicesToSwap = map( self.getSubTree,
+                             [self.nodeList, otherFSM.nodeList],
+                             [r.choice(range(self.nodeNum)), r.choice(range(otherFSM.nodeNum))],
+                             [int(self.SWAPAMOUNT * min(self.nodeNum,otherFSM.nodeNum))]*2 )
+
+        child1 = copy.deepcopy(self.nodeList) ### Do I need to deep copy these so they don't leek or get deleted??
+        child2 = copy.deepcopy(otherFSM.nodeList) # Or should I shallow copy just to make the next thing work?
+
+        for i in self.nodeNum:
+            if i in indicesToSwap[0]:
+                child1[i] = otherFSM.nodeList[indicesToSwap[1][i]]
+            if r.random() < self.MUTATIONRATE:
+                child1[i] = randomizeNode(child1[i])
+
+        for i in otherFSM.nodeNum:
+            if i in indicesToSwap[1]:
+                child2[i] = self.nodeList[indicesToSwap[0][i]]
+            if r.random() < self.MUTATIONRATE:
+                child2[i] = randomizeNode(child2[i])
+        ### I should probably be implementing mutation below the node level.
+                    
+        return (child1, child2)
+ 
+
+    def getSubTree(self, nodeList, treeNodeNum):
+        
+        subTreeIndices = [] # Maybe these should be a set?
+
+        # uses recursion to populate a list of subTreeIndices
+        def depthSearch(nodeList, thisNodeIndex, searchLength):
+
+            if searchLength <= 0:
+                return
+            if thisNodeIndex in subTreeIndices:
+                nextNodeIndex = r.choice( set(range(self.nodeNum)) - set(subTreeIndices) )
+                depthSearch(nodeList, nextNodeIndex, searchLength)
+            
+            subTreeIndices.append(thisNodeIndex)
+            searchLength -= 1
+            
+            for inputMove in sorted(c.CHOICES, key=lambda x: r.random()): # straight from Stackoverflow!
+                nextNodeIndex = nodeList[thisNodeIndex][inputMove]["nextNode"]
+                depthSearch(nodeList, nextNodeIndex, searchLength)
+                
+        # uses recursion to populate a list of subTreeIndices
+        def breadthSearch(nodeList, thisNodeIndex, searchLength, firstTime = True): 
+
+            # Need to start out with this node
+            if firstTime==True:
+                subTreeIndices.append(thisNodeIndex)
+                searchLength -= 1
+
+            nextNodeIndices = []
+                             
+            for inputMove in sorted(c.CHOICES, key=lambda x: r.random()): # straight from Stackoverflow!
+                if searchLength <= 0:
+                    return
+                nextNodeIndex = nodeList[thisNodeIndex][inputMove]["nextNode"]
+                if nextNodeIndex in subTreeIndices:
+                    continue
+                subTreeIndices.append(nextNodeIndex)
+                searchLength -= 1
+            
+            for index in nextNodeIndices:
+                breadthSearch(nodeList, nextNodeIndex, searchLength, firstTime = False)
+
+            nextNodeIndex = r.choice( set(range(self.nodeNum)) - set(subTreeIndices) )
+            breadthSearch(nodeList, nextNodeIndex, searchLength)
+
+        # Choose randomly from the two search types and return result
+        random.choice( (self.depthSearch(),self.breadthSearch()) )
+        
+        return subTreeIndices
+        
+
     
     
 

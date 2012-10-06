@@ -28,29 +28,17 @@ def playGame(p1,p2):
 
 def evolveAgainst(opponent):
 
-    ###
-    # CONFORM INPUT
-    #
     if type(opponent)=="type":
         opponent = opponent() # Instantiates an opponent if it's a player type
  
-    ###
-    # CONSTANTS (for now)
-    #
     MACHINENUM = 100 # Number of competing machines at any given time.
-    MACHINESIZE = 100 ###### Not sure if this is initial or if it will change
+    MACHINESIZE = 100 ### Not sure if this is initial or if it will change
     ROUNDSPERGAME = 100
-    GAMENUM = 100 ### Later on, change this to a legit stopping criteria
+    GAMENUM = 100 ### Later on, change this to legit stopping criteria
     
-    ###
-    # INITIALIZE MACHINE LIST
-    #
     #### Not sure if "nodeNum=" should be in here
     machineList = [pm.FSM(nodeNum=MACHINESIZE)]*MACHINENUM
 
-    ###
-    # PLAY GAMES AND EVOLVE
-    #
     for game in range(GAMENUM):
         # This is how to play a game with the machineList ##### Do I want Deep or Shallow copy?
         map( playGame, machineList, [copy.deepcopy(opponent)]*MACHINENUM )
@@ -58,14 +46,10 @@ def evolveAgainst(opponent):
         # Now all the machines have scores which I can use as fitness
         machineList = recombineMutateEtc(machineList)
 
-    ###
-    # RETURN FITTEST MACHINE
-    #
-    ########### Do this
+    # Return fittest machine (Look at their scorecards ###########
 
-    
 def recombineMutateEtc(machineList):
-    pass ########### Do this
+    pass ########### Look up roulettes whatever
 
 
 
