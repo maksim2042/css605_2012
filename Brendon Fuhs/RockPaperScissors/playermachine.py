@@ -21,7 +21,7 @@ class Player():
         self.move_history=[]
         self.id=id
 
-    def getID():
+    def getID(self):
         return self.id
         
     def go(self):
@@ -43,7 +43,7 @@ class Player():
 class FSM(Player):
 
     ######## Seems like multiple optional inputs could confuse things.
-    def __init__(self, id="noID", nodeNum=1, nodeList=None):
+    def __init__(self, id="noID", nodeNum=2, nodeList=None):
         Player.__init__(self, id="noID")
         self.SWAPAMOUNT = 0.1 # Size of cross-over portion, I have no idea if this is good
                                 # Maybe I should make this vary between .01 and .5 randomly?
@@ -51,9 +51,14 @@ class FSM(Player):
                                 # Maybe it should start higher and decrease with time?
         self.id=id
         self.nodeList = nodeList # This will be a list of nodes in the machine
+
+        self.nodeNum = nodeNum
+        ##########
+        print self.nodeNum # WHY IS ONLY ONE OF THESE PRINTING????
+        ######
         
         if self.nodeList==None: # Populate a random machine if none supplied
-            self.nodeList = [{}]*nodeNum
+            self.nodeList = [{}]*self.nodeNum
             self.nodeList = map(self.randomizeNode,self.nodeList)
             
         self.nodeNum = len(self.nodeList) # number of states in machine
@@ -61,15 +66,17 @@ class FSM(Player):
 
     # Randomizes the contents of a state / node
     def randomizeNode(self,node): # Do I need to feed this nodeNum?
-        for possibleOpponentMove in node.keys():
+        for possibleOpponentMove in c.CHOICES:
             node[possibleOpponentMove] = { "output" :  c.CHOICES[r.randint(0,2)],
-                                           "nextNode" : nodeList[r.randint(0,nodeNum)] }
+                                           "nextNode" : self.nodeList[r.randint(0,self.nodeNum-1)] }
         return node
 
     # This returns the machine's move and iterates it to the next state
     def go(self):
+        if len(self.move_history)==0:
+            return c.CHOICES[r.randint(0,2)]
         opponentMoved = self.move_history[-1][1]
-        ourResponse = self.currentNode[opponentMove]
+        ourResponse = self.currentNode[opponentMoved]
         self.currentNode = ourResponse["nextNode"]
         return ourResponse["output"]
 
@@ -102,7 +109,7 @@ class FSM(Player):
         return (child1, child2)
  
 
-    def getSubTree(self, nodeList, treeNodeNum):
+    def getSubTree(self, nodeList, startNodeIndex, treeNodeNum):
         
         subTreeIndices = [] # Maybe these should be a set?
 
@@ -111,15 +118,15 @@ class FSM(Player):
 
             if searchLength <= 0:
                 return
-            if thisNodeIndex in subTreeIndices:
-                nextNodeIndex = r.choice( set(range(self.nodeNum)) - set(subTreeIndices) )
+            if thisNodeIndex in subTreeIndices:    #####vvv Why would this be empty? If nodeNum=1
+                nextNodeIndex = r.choice(list( set(range(self.nodeNum)) - set(subTreeIndices) ))
                 depthSearch(nodeList, nextNodeIndex, searchLength)
             
             subTreeIndices.append(thisNodeIndex)
             searchLength -= 1
             
             for inputMove in sorted(c.CHOICES, key=lambda x: r.random()): # straight from Stackoverflow!
-                nextNodeIndex = nodeList[thisNodeIndex][inputMove]["nextNode"]
+                nextNodeIndex = nodeList.index(nodeList[thisNodeIndex][inputMove]["nextNode"])
                 depthSearch(nodeList, nextNodeIndex, searchLength)
                 
         # uses recursion to populate a list of subTreeIndices
@@ -135,7 +142,7 @@ class FSM(Player):
             for inputMove in sorted(c.CHOICES, key=lambda x: r.random()): # straight from Stackoverflow!
                 if searchLength <= 0:
                     return
-                nextNodeIndex = nodeList[thisNodeIndex][inputMove]["nextNode"]
+                nextNodeIndex = nodeList.index(nodeList[thisNodeIndex][inputMove]["nextNode"])
                 if nextNodeIndex in subTreeIndices:
                     continue
                 subTreeIndices.append(nextNodeIndex)
@@ -144,11 +151,11 @@ class FSM(Player):
             for index in nextNodeIndices:
                 breadthSearch(nodeList, nextNodeIndex, searchLength, firstTime = False)
 
-            nextNodeIndex = r.choice( set(range(self.nodeNum)) - set(subTreeIndices) )
+            nextNodeIndex = r.choice(list( set(range(self.nodeNum)) - set(subTreeIndices) ))
             breadthSearch(nodeList, nextNodeIndex, searchLength)
 
         # Choose randomly from the two search types and return result
-        random.choice( (self.depthSearch(),self.breadthSearch()) )
+        r.choice((depthSearch,breadthSearch))(nodeList, startNodeIndex, treeNodeNum)
         
         return subTreeIndices
         

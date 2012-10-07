@@ -22,7 +22,7 @@ class Player():
         self.move_history=[]
         self.id=id
 
-    def getID():
+    def getID(self):
         return self.id
         
     def go(self):
