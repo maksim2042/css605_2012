@@ -1,0 +1,26 @@
+
+
+there is a type of frog called the green frog (Rana clamitans)  that lives in a bog, and loves to mate. 
+The male frog sings a simple song that has pitches corresponding to the following range
+
+The female green frog loves the song and mates long and often with a frog that can sing the song.
+Unfortunately the male green frog has an enemy, the blue tailed swamp bat (BTSB),  
+that loves to eat frogs. His approach to getting lunch is as follows:
+ 
+
+Now, the green frog can only be eaten (thwacked) if he's heard.
+
+BTSB:
+Limited range of audio perception to { 45-122 hz range}
+
+Green Frog:
+Song {22, 24, 47, 56, 120, 150, 190}
+
+Male frogs whose song is closest to the original frog song get the most 'action'. 
+
+process
+1) create 100 frogs (50 male, 50 female)
+2) how do they modify the song to get the most 'action'
+
+
+
