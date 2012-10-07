@@ -7,13 +7,7 @@ class SimpleFSM:
         self.handlers = {}
         self.endStates = []
         self.startState = None
-        self.add_state("Start", transitions)
-        self.add_state_element("is_state", transitions)
-        self.add_state_element("not_state", transitions)
-        self.add_state_element("neg_state", None, end_state=1)
-        self.add_state_element("pos_state", None, end_state=1)
-        self.add_state_element("error_state", None, end_state=1)
-        self.set_start("Start")
+        
         
     def add_state_element(self, name, handler, end_state=0):
         self.handlers[name] = handler

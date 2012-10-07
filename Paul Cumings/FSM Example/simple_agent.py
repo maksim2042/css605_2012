@@ -5,12 +5,23 @@ from statemachine import StateMachine
 class SimpleAgent:
     def __init__(self):
         self.stateMachine = FiniteStateMachine()
-        move_states = ["Forward","Reverse", "Left", "Right"]
-        active_states = ["Hit", "Walk", "Surrender", "Die"]
-        conjunction_state = ["and", "or", "not" ]
+        self.stateMachine.move_states = ["Forward","Reverse", "Left", "Right"]
+        self.stateMachine.z = ["Hit", "Walk", "Surrender", "Die"]
+        self.stateMachine.conjunction_state = ["and", "or", "not" ]
+        self.stateMachine.conjunction_state = ["done", "end" ]
+        
+        self.add_state("Start", transitions)
+        self.add_state_element("conjunction_state", transitions)
+        self.add_state_element("move_states", transitions)
+        self.add_state_element("active_states", transitions)
+        self.add_state_element("done-State", None, end_state=1)
+  
+              
+
       
         #run the action on the state machine
     def Run(self, action1, action2):
+        self.stateMachine.set_start("Start") 
         self.stateMachine.run(action1, action2)
     
         #check transitions
