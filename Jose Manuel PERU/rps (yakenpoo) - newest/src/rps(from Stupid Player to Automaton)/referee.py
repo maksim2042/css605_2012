@@ -1,8 +1,6 @@
 '''
-Created on Sep 19, 2012
+Created on Oct 10 at 3.45 am, 2012
 @author: josemagallanes
-YANKENPO IS THE NAME OF THIS GAME IN PERU!!!!!!!
-THE FIRST ONE WHO GETS 3 POINTS, WIN!!!
 '''
 import constants as c 
 import player as p

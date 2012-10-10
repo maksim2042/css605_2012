@@ -1,12 +1,8 @@
 '''
-Created on Sep 22, 2012
-
+Created on Oct 10 at 3.45 am, 2012
 @author: josemagallanes
 '''
 
-"""
-We implement a SUPER CLASS PLAYER and then define subclasses according to the type of player playing strategy
-"""
 import random
 import constants as c
 

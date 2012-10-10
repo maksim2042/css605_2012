@@ -1,5 +1,5 @@
 '''
-Created on Sep 22, 2012
+Created on Oct 10 at 3.45 am, 2012
 @author: josemagallanes
 '''
 ROCK='ROCK'
