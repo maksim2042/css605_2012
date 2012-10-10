@@ -25,6 +25,7 @@ class SM:
 class PlayerTFT(SM):
     startState = 'r'
     def getNextMove(self, state, inp):
+        ## r: (r:p,p:s,s:r), p: (p:s, r:p, s:r)
         if state == 'r' and inp == 'r':
             return ('p', 0)
         elif state == 'r' and inp == 'p':
