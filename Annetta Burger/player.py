@@ -1,5 +1,5 @@
 """
-Annetta's set of players for the RPS game
+This class implements a very stupid simple player for the RPS game
 """
 import constants as c
 import random
@@ -31,47 +31,59 @@ class Player(object):
 			print 'I LOST :((( ', self.myScore
 		
 class RandomPlayer(Player):
+
 	def __init__(self, id="noID"):
-		Player.__init__(self)
+		Player.__init__(self, id)
 	
 	def go(self):
 		choice=int(random.uniform(0,3))
 		return(c.CHOICES[choice])
-	
-class Tit4TatPlayer(Player):
-	def __init__(self, id="noID"):
-		Player.__init__(self)
-		
-	def go(self):
-		choice=int(random.uniform(0,3))
-		if move1 == c.ROCK:
-			return c.ROCK
-		elif move1 == c.PAPER:
-			return c.PAPER
-		elif move1 == c.SCISSORS:
-			return c.SCISSORS
-		else:
-			return(c.CHOICES[choice])
-		
-class HumanPlayer(Player):
-	def __init__(self, id="noID"):
-		Player.__init__(self)
-	
-	def go(self):
-		move = raw_input('Enter your move; ROCK, PAPER or SCISSORS.')
-		return move
-	
+
 class SequencePlayer(Player):
+
 	def __init__(self, id="noID"):
-		Player.__init__(self)
-		
+		Player.__init__(self, id)
+		self.counter = 0
+		choice=int(random.uniform(0,3))  #Create a random move
+		self.sequence = []
+		self.sequencelength = 5          #Create a random sequence list of moves of a set length
+		for i in range(self.sequencelength):
+                        self.sequence.append(c.CHOICES[choice])
+                        choice = int(random.uniform(0,3))      
+                        
 	def go(self):	
-		movesequence = [ROCK, SCISSORS, SCISSORS, ROCK, PAPER]
-		x = random.choice([1,2,3,4,5])
-		basemove = movesequence[x]
-		if basemove == PAPER:
-			return movesequence[1]
+		if self.counter == self.sequencelength:
+                        return self.sequence[self.counter]
+                        self.counter = 0
 		else:
-			return movesequence[x+1]
-		
-	
+                        return self.sequence[self.counter]
+                        self.counter += 1
+
+class HumanPlayer(Player):
+
+        def __init__(self, id="noID"):
+                Player.__init__(self, id)
+                self.id = raw_input('Enter player name, and press return.')
+
+        def go(self):
+
+		move = raw_input('Enter your move, ROCK, PAPER or SCISSORS, and press return.')
+		if move in c.CHOICES:
+                        return move
+                else:
+                        move = raw_input('Bad entry, please enter ROCK, PAPER or SCISSORS and press return. ')
+                        return move
+
+class Tit4TatPlayer(Player):
+
+        def __init__(self, id="noID"):
+                Player.__init__(self, id)
+
+        def go(self):
+                choice = int(random.uniform(0,3)
+                roundnumber = len(self.move_history)
+                if roundnumber == 0:
+                        return c.CHOICES[choice]
+                else:
+                    return self.move_history[roundnumber-1][1]
+
