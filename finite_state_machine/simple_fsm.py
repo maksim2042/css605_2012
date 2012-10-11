@@ -1,19 +1,21 @@
 
 
 class Node():
-	def __init__(self,id):
+	def __init__(self,id,func=None):
 		self.id=id
 		self.neighbors={}
+		self.run_function=func
 	
 	def addNeighbor(self,n,condition):
 		self.neighbors[condition]=n
 		
-	def run():
-		pass
+	def run(self):
+		return self.run_function(self.id)
 
+def start(): print "starting FSM"
+start=Node('Start', func=start)
 
-start=Node('Start')
-stop=Node('Stop')
+stop=Node('Stop', func=lambda x : x ## return next move or do something intelligent)
 r=Node('R')
 p=Node('P')
 s=Node('S')
