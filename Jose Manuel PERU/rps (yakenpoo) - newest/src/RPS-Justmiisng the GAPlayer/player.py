@@ -1,7 +1,9 @@
 '''
-Created on Oct 10 at 3.45 am, 2012
+Created on Oct 11, 2012
+
 @author: josemagallanes
 '''
+
 
 import random
 import constants as c
@@ -61,10 +63,21 @@ class tftPlayer(Player):
     
     def strategy(self):
         if self.start==0:
-            newOm=c.ROCK
+            nextOwnMove=c.ROCK
             self.start+=1
         else:
-            oM,rM=self.move_history[-1]
-            newOm=c.STATES[oM,rM]
-        return newOm
+            ownMove,rivalMove=self.move_history[-1]
+            nextOwnMove=c.STATES[ownMove,rivalMove]
+        return nextOwnMove
+
+class SequencePlayer(Player):
+    def __init__(self, playerID,pstrategy='Sequential Player'):
+        Player.__init__(self,playerID,'Sequential Player')
+        self.sequencePosition=0
     
+    def strategy(self):
+        nextOwnMove = c.SEQUENCE[self.sequencePosition]
+        self.sequencePosition+=1
+        if self.sequencePosition==len(c.SEQUENCE):
+            self.sequencePosition=0
+        return nextOwnMove
