@@ -68,12 +68,12 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSitePro
         # Size of subtree is based on meanXoverSize
         treeNodeNum = int(max(1,min(r.gauss(meanXoverSize, MACHINENUM/10.0),MACHINENUM/2)))
         
-        subTree1 = machine1.getSubTree(startNodeIndex1, treeNodeNum)
-        subTree2 = machine2.getSubTree(startNodeIndex2, treeNodeNum)
+        #subTree1 = machine1.getSubTree(startNodeIndex1, treeNodeNum)
+        #subTree2 = machine2.getSubTree(startNodeIndex2, treeNodeNum)
 
         ####################### These are returning zeroes!!!
-        print "Subtree 1 ", len(subTree1)
-        print "Subtree 2 ", len(subTree2)
+        #print "Subtree 1 ", len(subTree1)
+        #print "Subtree 2 ", len(subTree2)
         
         def subTreeReplace(machine,subTree,replacementSubTree): # Generator replaces subtrees by node.
             i=0
@@ -87,8 +87,17 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSitePro
                     newNode = machine.randomizeNode(newNode)
                 yield newNode
         
-        childGenes1=[ node for node in subTreeReplace( machine1.nodeList, subTree1, subTree2 ) ]
-        childGenes2=[ node for node in subTreeReplace( machine2.nodeList, subTree2, subTree1 ) ]
+        #childGenes1=[ node for node in subTreeReplace( machine1.nodeList, subTree1, subTree2 ) ]
+        #childGenes2=[ node for node in subTreeReplace( machine2.nodeList, subTree2, subTree1 ) ]
+        ####### DELETE THIS EVENTUALLY ##
+        childGenes1 = machine1.nodeList ##
+        childGenes2 = machine2.nodeList ##
+        for i in range(treeNodeNum): ##
+            childGenes1[i], childGenes2[i] = childGenes2[i], childGenes1[i] ##
+        for genes in [childGenes1,childGenes2]: ##
+            for node in genes: ##
+                if r.random() <= mutateProb: ##
+                    node = machine1.randomizeNode(node) ##
         newGenesList.append(childGenes1)
         newGenesList.append(childGenes2)
 
@@ -104,7 +113,7 @@ def evolveAgainst(opponentList):
     MACHINENUM = 100 # EVEN number of competing machines at any given time.
     MACHINESIZE = 100 ### Not sure if this is initial or if it will change
     ROUNDSPERGAME = 100
-    GAMENUM = 100 ### Later on, change this to legit stopping criteria
+    GAMENUM = 300 ### Later on, change this to legit stopping criteria
     MEANXOVERSIZE = int(0.15*MACHINENUM)
     XOVERALTSITEPROB = 0.05
     MUTATEPROB = 0.05
@@ -158,10 +167,8 @@ def evolveAgainst(opponentList):
         assert(max(fitnessList)<=1)
         assert(min(fitnessList)>=0)
   
-        newGenesList = recombineMutateEtc(machineList,fitnessList, MEANXOVERSIZE, XOVERALTSITEPROB, MUTATEPROB)
-        #######################3
-        print "Successfully acquired genetic material"        
-        machineList = [ FSMPlayer(nodeList=machineGene) for machineGene in newGenesList]
+        newGenesList = recombineMutateEtc(machineList,fitnessList, MEANXOVERSIZE, XOVERALTSITEPROB, MUTATEPROB)  
+        machineList = [ pm.FSMPlayer(nodeList=machineGene) for machineGene in newGenesList]
 
 def playGame(p1, p2, numRounds):
     for i in range(numRounds):
@@ -247,10 +254,10 @@ def playRPS():
         print " "
         print "Choose a Player Type to create"
         print " "
-        newPlayer = playerTypeMenuWithEvolve.getSelection()()
-        # newPlayer = newPlayer()############ DELETE THIS LINE
-        if newPlayer==None:
-            return
+        try:
+            newPlayer = playerTypeMenuWithEvolve.getSelection()()
+        except:
+            return # This is to catch the none-of-the-above option
         print " "
         newName = raw_input("Enter a name for this player... ")
         print " "
@@ -309,7 +316,7 @@ def playRPS():
                       "Tit4Tat Player",
                       "Human Player",
                       "MLPlayer Player",
-                      "Markov Player", ]
+                      "Markov Player (SLOW)", ]
 
     # These ones will actually need to be executed because they take IDs
     playerTypes = [ p.RandomPlayer,
@@ -328,10 +335,10 @@ def playRPS():
                                     playerTypes + [evolvePlayer] + [None])
     
     mainMenuList = ["Play Rock, Paper, Scissors",
-                    "View Players",
-                    "Create or evolve a Player",
+                    "View Players (BROKEN)",
+                    "Create or evolve a Player (NOT VERY GOOD)",
                     "Delete a Player",
-                    "Quit" ]
+                    "Quit (SORTA BROKEN)" ]
 
     mainMenuActions = [ setupAGame,
                         playerMenu.displayMenu,  ###########NOT WORKING

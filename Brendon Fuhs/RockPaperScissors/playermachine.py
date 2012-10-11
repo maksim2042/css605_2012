@@ -2,7 +2,7 @@
 playermachine.py
 
 10-6-12
-updated 10-10-12
+updated 10-11-12
 
 Brendon Fuhs
 
@@ -72,6 +72,14 @@ class FSMPlayer(Player):
         self.currentNode = ourResponse["nextNode"]
         return ourResponse["output"]
 
+    # checks to see if the object itself is in the other collection
+    # This is inefficient
+    def isin(self, a, collection):
+        for b in collection:
+            if a is b:
+                return True
+        return False
+
     # Gets a subTree
     def getSubTree(self, startNodeIndex, treeNodeNum):
         assert(treeNodeNum<=len(self.nodeList)/2)
@@ -92,9 +100,9 @@ class FSMPlayer(Player):
                 #print " "
                 #print " "
                 #print "nodelist ", self.nodeList
-                print [node for node in self.nodeList if node not in subTree]
-                assert (len([node for node in self.nodeList if node not in subTree])>0)
-                nextNode = r.choice([node for node in self.nodeList if node not in subTree])
+                print [node for node in self.nodeList if not isin(node,subTree)]
+                assert (len([node for node in self.nodeList if not self.isin(node,subTree)])>0)
+                nextNode = r.choice([node for node in self.nodeList if not self.isin(node,subTree)])
                 depthSearch(nextNode, searchLength)
             else:
                 subTree.append(thisNode)
@@ -136,8 +144,8 @@ class FSMPlayer(Player):
                 #print " "
                 #print "nodelist ", self.nodeList
                 print [node for node in self.nodeList if node not in subTree]
-                assert (len([node for node in self.nodeList if node not in subTree])>0)
-                nextNode = r.choice([node for node in self.nodeList if node not in subTree])
+                assert (len([node for node in self.nodeList if not self.isin(node,subTree)])>0)
+                nextNode = r.choice([node for node in self.nodeList if not self.isin(node,subTree)])
                 breadthSearch(nextNode, searchLength)
 
         # Choose randomly from the two search types and return result
