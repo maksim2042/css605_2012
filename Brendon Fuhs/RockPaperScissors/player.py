@@ -14,7 +14,7 @@ import math
 import itertools as it
 
 
-class Player():
+class Player(object):
     
     def __init__(self, id="noID"):
         self.myScore=0
@@ -279,47 +279,4 @@ class SleeperCell(Player): # This player waits...
     def go(self):
         choice=int(random.uniform(0,3))
         return(c.CHOICES[choice])
-
-'''
-# FIX - actually no, delete this one
-# I might not have time to do anything too supercool with this.
-class SleeperCell(Player): # This player waits...
-    
-    def __init__(self, id="noID"):
-        Player.__init__(self, id="noID")
-        self.id=id
-        self.ALWAYS_WAIT = 50
-        self.ADDED_WAIT_CHANCE = 49.0/50.0
-        self.stillRandom == True
-        self.a = 1.0/3.0
-        self.b = 0.0
-        self.c = 0.0
-        
-    def go(self):
-        lastMoveNum = len(self.move_history)
-        if lastMoveNum <= self.ALWAYS_WAIT:
-            choice=int(random.uniform(0,3))
-            return(c.CHOICES[choice])
-        if (random.random() <= self.ADDED_DECAY_CHANCE) & (self.stillRandom == True):
-            choice=int(random.uniform(0,3))
-            self.stillRandom = False
-            return(c.CHOICES[choice])
-
-    # Now it wakes up
-
-
-    def sumOfSquaredError(funct, xList, dataList):
-        squErr = 0
-        for i in len(dataList):
-            squErr += math.pow( funct(dataList[i]) - funct(xList[i]) , 2 )
-        return squErr
-
-    def polyEval(x, paramList):  # Change this to Moore/hook/whatever eval style
-        poly = 0
-        for i in len(paramList):
-            poly += paramList[i]*pow(x,i)
-        return poly
-'''      
-
-
         

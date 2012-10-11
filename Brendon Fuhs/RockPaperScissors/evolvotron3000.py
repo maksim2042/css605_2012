@@ -4,11 +4,14 @@ evolvotron3000.py
 
 Brendon Fuhs
 10-5-12
+updated 10-11-12
 
 This is an interface and referee for running
 Rock, Paper, Scissors games and evolving players.
 
 
+Semi-problem: I'm copying the same already-instantiated opponents when evolving a player.
+This is fixable.
 '''
 
 
@@ -17,29 +20,107 @@ import constants as c
 import player as p
 import playermachine as pm
 import copy
+import math as m
+
+# Do I have a random seed problem?
+
+# This returns gene material for the next round.
+def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSiteProb, mutateProb ):
+    MACHINENUM = len(fitnessList)
+    print "Recombining, mutating, etc..."
+    print " "
+    reproductionList = []
+    
+    fitnessDict = dict(zip(machineList,fitnessList))
+    # This may not be the most efficient way of doing this.
+    r.shuffle(machineList)
+
+    def fitnessSelected(machines, fitnesses): # Generator, not sure if optimally-written. Maybe should be function.
+        machinesYielded = 0
+        r.shuffle(machines)
+        while True:
+            for machine in machines:
+                if r.random() < fitnesses[machine]/MACHINENUM:
+                    yield machine
+                machinesYielded += 1
+                if machinesYielded == MACHINENUM:
+                    StopIteration
+
+    reproductionList = [machine for machine in fitnessSelected(machineList, fitnessDict)]
+
+    newGenesList = []
+    r.shuffle(reproductionList)
+
+    ##### MAKE THIS BETTER
+    for machine1,machine2 in it.izip( ifilter(lambda x: x%2, range(MACHINENUM)) ,ifilterfalse(lambda x: x%2, range(MACHINENUM) )):
+        ############ NEED TO DECIDE HOW I WANT TO DO THIS
+        startNodeIndex1 = r.choice(range(MACHINENUM))
+        if r.random() < xoverAltSiteProb:
+            startNodeIndex2 = r.choice(range(MACHINENUM))
+        else:
+            startNodeIndex2 = startNodeIndex1
+
+        # Size of subtree is based on meanXoverSize
+        treeNodeNum = int(min(0,max(r.gauss(meanXoverSize, MACHINENUM/6.0),MACHINENUM/2)))
+        
+        subTree1 = machine1.getSubTree(startNodeIndex1, treeNodeNum)
+        subTree2 = machine2.getSubTree(startNodeIndex2, treeNodeNum)
+
+        def subTreeReplace(machine,subTree,replacementSubTree): # Generator replaces subtrees by node.
+            i=0
+            for node in machine:
+                if node==subTree[i]:
+                    i+=1
+                    newNode = replacementSubTree[i]
+                else:
+                    newNode = node
+                if r.random() <= mutateProb:
+                    newNode = machine.randomizeNode(newNode)
+                yield newNode
+        
+        childGenes1=[ node for node in subTreeReplace( machine1, subTree1, subTree2 ) ]
+        childGenes2=[ node for node in subTreeReplace( machine2, subTree2, subTree1 ) ]
+        newGenesList.append(childGenes1)
+        newGenesList.append(childGenes2)
+
+    #### I have no idea is these garbage-collection-ish lines are necessary
+    newGenesList = copy.deepcopy(newGenesList)
+    del machineList
+    
+    return newGenesList
 
 
+# This method creates a machine player that was evolved against a list of opponent types
 def evolveAgainst(opponentList):
-
-    # maybe opponentList should have been a set?
-    for i in range(len(opponentList)):
-        if str(type(opponentList[i]))=="<type 'classobj'>":  # I couldn't make boolean with type work
-            opponentList[i] = opponentList[i]("testPlayer") # Instantiates an opponent if it's a player type
     MACHINENUM = 100 # EVEN number of competing machines at any given time.
     MACHINESIZE = 100 ### Not sure if this is initial or if it will change
     ROUNDSPERGAME = 100
     GAMENUM = 100 ### Later on, change this to legit stopping criteria
+    MEANXOVERSIZE = int(0.15*MACHINENUM)
+    XOVERALTSITEPROB = 0.05
+    MUTATEPROB = 0.05
+    
+    # Generator of instantiated players from list of both player types and players
+    def playersCreatedFrom(opponentList): 
+        for opponent in opponentList:
+            if str(type(opponent))=="<type 'type'>": #### FIGURE OUT A BETTER WAY TO CHECK THIS
+                yield opponent("testPlayer") # Instantiates an opponent if it's a player type
+            else:
+                yield opponent
+    
+    opponentList = [opponent for opponent in playersCreatedFrom(opponentList)]
+    # Now opponentList has playable opponents.
 
-    print   "Creating ", MACHINENUM, " random machines with ", MACHINESIZE, " nodes apiece."
-    #### Not sure if "nodeNum=" should be in here
-    machineList = [pm.FSM(nodeNum=MACHINESIZE)]*MACHINENUM
+    print "Creating ", MACHINENUM, " random machines with ", MACHINESIZE, " nodes apiece."
+    #### "nodeNum="
+    machineList = [pm.FSMPlayer(nodeNum=MACHINESIZE) for i in range(MACHINENUM)] # Creates random machine players for the first time
     print " "
     gameCount = 0
     while True:
         opponent = r.choice(opponentList)
-        gameCount += 1
-        print  "Commencing Game number ", gameCount
-        print  "Letting each machine play ", ROUNDSPERGAME, " rounds against ", opponent.getID()
+        print " "
+        print "Game ", gameCount
+        print "Letting each machine play ", ROUNDSPERGAME, " rounds against a copy of ", opponent.getID(), opponent
         
         ##### Do I want Deep or Shallow copy?
         map( playGame,
@@ -48,37 +129,29 @@ def evolveAgainst(opponentList):
              [ROUNDSPERGAME]*MACHINENUM )
         
         fitnessList = [machine.myScore for machine in machineList]
-        fitnessList = [x+1+min(fitnessList) for x in fitnessList]
 
-        if gameCount == GAMENUM:
-            return machineList[fitnessList.index(max(fitnessList))]
+        gameCount += 1
+        if gameCount >= GAMENUM: # Wrap things up if that was the final set of games.
+            winnerMachine = machineList[fitnessList.index(max(fitnessList))]
+            print "The winning machine has a score of ", winnerMachine.myScore
+            return winnerMachine
         
-        ############# This is printing out weird stuff
-        print   " Adjusted fitness stats: Best = ", max(fitnessList), ". Worst = ", min(fitnessList),"." 
-        print   "Average = ", ( sum(fitnessList)/MACHINENUM ), ". Median = ", sorted(fitnessList)[MACHINENUM/2],"." 
-        print "Recombining, mutating, etc..."
-        machineList = recombineMutateEtc(machineList,fitnessList)
+        maxFit = max(fitnessList)
+        minFit = min(fitnessList)
+        print "Fitness stats: Best = ", maxFit, ". Worst = ", minFit,"." 
+        print "Average = ", ( sum(fitnessList)/MACHINENUM ), ". Median = ", sorted(fitnessList)[MACHINENUM/2],"." 
         print " "
-
-def recombineMutateEtc(machineList,fitnessList ): # fitnessList probably isn't necessary
-
-    totalFitness = float(sum(fitnessList))
-    reproductionList = []
-    # This may not be the most efficient way of doing this.
-    r.shuffle(machineList)
-    while True:
-        for machine in machineList:
-            if r.random() < machine.myScore/totalFitness:
-                reproductionList.append(machine)
-        if len(reproductionList) >= len(machineList):
-            break
-
-    childList = []
-    r.shuffle(reproductionList)
-    for i in range(len(machineList)):
-        childList += reproductionList[i*2].mateWith(reproductionList[i*2+1])
-    return childList
-    
+        print "Normalizing fitness stats..."
+        print " "
+        ############# WILL BREAK IF maxFit==minFit
+        try: fitnessList = [(x-minFit)/float(maxFit-minFit) for x in fitnessList]
+        except: fitnessList = [.5]*len(fitnessList)
+        assert(len(fitnessList)==len(machineList))
+        assert(max(fitnessList)<=1)
+        assert(min(fitnessList)>=0)
+  
+        newGenesList = recombineMutateEtc(machineList,fitnessList, MEANXOVERSIZE, XOVERALTSITEPROB, MUTATEPROB)
+        machineList = [ FSMPlayer(nodeList=machineGene) for machineGene in newGenesList]
 
 def playGame(p1, p2, numRounds):
     for i in range(numRounds):
