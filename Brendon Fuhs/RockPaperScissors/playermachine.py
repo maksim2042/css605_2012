@@ -74,24 +74,34 @@ class FSMPlayer(Player):
 
     # Gets a subTree
     def getSubTree(self, startNodeIndex, treeNodeNum):
+        assert(treeNodeNum<=len(self.nodeList)/2)
         startNode = self.nodeList[startNodeIndex]
         subTree = []
-
+        
         # recursive depth search to get subTree
         def depthSearch(thisNode, searchLength):
 
             if searchLength <= 0:
                 return
-            if thisNode in subTree:    #####vvv Why would this be empty? If nodeNum=1
+            if thisNode in subTree:
+                ###################
+                #print len(subTree)
+                #print len(self.nodeList)
+                #print [node for node in self.nodeList if node not in subTree]
+                #print "subtree ", subTree
+                #print " "
+                #print " "
+                #print "nodelist ", self.nodeList
+                print [node for node in self.nodeList if node not in subTree]
+                assert (len([node for node in self.nodeList if node not in subTree])>0)
                 nextNode = r.choice([node for node in self.nodeList if node not in subTree])
                 depthSearch(nextNode, searchLength)
-            
-            subTree.append(thisNode)
-            searchLength -= 1
-            
-            for inputMove in sorted(c.CHOICES, key=lambda x: r.random()):
-                nextNode = thisNode[inputMove]["nextNode"]
-                depthSearch(nextNode, searchLength)
+            else:
+                subTree.append(thisNode)
+                searchLength -= 1
+                for inputMove in sorted(c.CHOICES, key=lambda x: r.random()):
+                    nextNode = thisNode[inputMove]["nextNode"]
+                    depthSearch(nextNode, searchLength)
                 
         # recursive breadth search to get subTree
         def breadthSearch(thisNode, searchLength, firstTime = True): 
@@ -116,11 +126,22 @@ class FSMPlayer(Player):
             for nextNode in nextNodesList:
                 breadthSearch(nextNode, searchLength, firstTime = False)
 
-            nextNode = r.choice([node for node in self.nodeList if node not in subTree])
-            breadthSearch(nextNode, searchLength)
+            if len(nextNodesList)==0:
+                ###################
+                #print len(subTree)
+                #print len(self.nodeList)
+                #print [node for node in self.nodeList if node not in subTree]
+                #print "subtree ", subTree
+                #print " "
+                #print " "
+                #print "nodelist ", self.nodeList
+                print [node for node in self.nodeList if node not in subTree]
+                assert (len([node for node in self.nodeList if node not in subTree])>0)
+                nextNode = r.choice([node for node in self.nodeList if node not in subTree])
+                breadthSearch(nextNode, searchLength)
 
         # Choose randomly from the two search types and return result
-        r.choice((depthSearch,breadthSearch))(nodeList, startNode, treeNodeNum)
+        r.choice((depthSearch,breadthSearch))(startNode, treeNodeNum)
         return subTree
 
     def go(self):

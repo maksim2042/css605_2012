@@ -14,7 +14,7 @@ Semi-problem: I'm copying the same already-instantiated opponents when evolving 
 This is fixable.
 '''
 
-
+import itertools as it
 import random as r
 import constants as c
 import player as p
@@ -35,16 +35,17 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSitePro
     # This may not be the most efficient way of doing this.
     r.shuffle(machineList)
 
+    
     def fitnessSelected(machines, fitnesses): # Generator, not sure if optimally-written. Maybe should be function.
         machinesYielded = 0
         r.shuffle(machines)
         while True:
             for machine in machines:
-                if r.random() < fitnesses[machine]/MACHINENUM:
+                if r.random() < fitnesses[machine]: # /MACHINENUM: Maybe I'm wrong, but I don't think I need it
                     yield machine
-                machinesYielded += 1
-                if machinesYielded == MACHINENUM:
-                    StopIteration
+                    machinesYielded += 1
+                if machinesYielded >= MACHINENUM:
+                    raise StopIteration
 
     reproductionList = [machine for machine in fitnessSelected(machineList, fitnessDict)]
 
@@ -52,8 +53,12 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSitePro
     r.shuffle(reproductionList)
 
     ##### MAKE THIS BETTER
-    for machine1,machine2 in it.izip( ifilter(lambda x: x%2, range(MACHINENUM)) ,ifilterfalse(lambda x: x%2, range(MACHINENUM) )):
-        ############ NEED TO DECIDE HOW I WANT TO DO THIS
+    for machineIndex1,machineIndex2 in it.izip( it.ifilter(lambda x: x%2, range(MACHINENUM)) ,it.ifilterfalse(lambda x: x%2, range(MACHINENUM) )):
+
+
+        machine1 = reproductionList[machineIndex1]
+        machine2 = reproductionList[machineIndex2]
+        
         startNodeIndex1 = r.choice(range(MACHINENUM))
         if r.random() < xoverAltSiteProb:
             startNodeIndex2 = r.choice(range(MACHINENUM))
@@ -61,25 +66,29 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverSize, xoverAltSitePro
             startNodeIndex2 = startNodeIndex1
 
         # Size of subtree is based on meanXoverSize
-        treeNodeNum = int(min(0,max(r.gauss(meanXoverSize, MACHINENUM/6.0),MACHINENUM/2)))
+        treeNodeNum = int(max(1,min(r.gauss(meanXoverSize, MACHINENUM/10.0),MACHINENUM/2)))
         
         subTree1 = machine1.getSubTree(startNodeIndex1, treeNodeNum)
         subTree2 = machine2.getSubTree(startNodeIndex2, treeNodeNum)
 
+        ####################### These are returning zeroes!!!
+        print "Subtree 1 ", len(subTree1)
+        print "Subtree 2 ", len(subTree2)
+        
         def subTreeReplace(machine,subTree,replacementSubTree): # Generator replaces subtrees by node.
             i=0
             for node in machine:
                 if node==subTree[i]:
                     i+=1
-                    newNode = replacementSubTree[i]
+                    newNode = replacementSubTree[i] ################ Index out of range?????
                 else:
                     newNode = node
                 if r.random() <= mutateProb:
                     newNode = machine.randomizeNode(newNode)
                 yield newNode
         
-        childGenes1=[ node for node in subTreeReplace( machine1, subTree1, subTree2 ) ]
-        childGenes2=[ node for node in subTreeReplace( machine2, subTree2, subTree1 ) ]
+        childGenes1=[ node for node in subTreeReplace( machine1.nodeList, subTree1, subTree2 ) ]
+        childGenes2=[ node for node in subTreeReplace( machine2.nodeList, subTree2, subTree1 ) ]
         newGenesList.append(childGenes1)
         newGenesList.append(childGenes2)
 
@@ -143,14 +152,15 @@ def evolveAgainst(opponentList):
         print " "
         print "Normalizing fitness stats..."
         print " "
-        ############# WILL BREAK IF maxFit==minFit
-        try: fitnessList = [(x-minFit)/float(maxFit-minFit) for x in fitnessList]
+        try: fitnessList = [(x-minFit)/float(maxFit-minFit) for x in fitnessList] # Will break if maxFit==minFit
         except: fitnessList = [.5]*len(fitnessList)
         assert(len(fitnessList)==len(machineList))
         assert(max(fitnessList)<=1)
         assert(min(fitnessList)>=0)
   
         newGenesList = recombineMutateEtc(machineList,fitnessList, MEANXOVERSIZE, XOVERALTSITEPROB, MUTATEPROB)
+        #######################3
+        print "Successfully acquired genetic material"        
         machineList = [ FSMPlayer(nodeList=machineGene) for machineGene in newGenesList]
 
 def playGame(p1, p2, numRounds):
@@ -284,10 +294,13 @@ def playRPS():
             pass
 
     def exitRPS():
-        print " " ##################### quit or exit?
+        print " " 
         print "NO YOU CAN NEVER LEAVE"
         print "LET US PLAY FOREVER AND EVER!!"
         print " "
+        a = 1/0 ##################### LOLOLOLOLOLOL!!!!
+        # import sys
+        # sys.exit
         
 
     playerTypeList = ["Random Player",
@@ -331,6 +344,7 @@ def playRPS():
     # Game Loop!
     while True:
         mainMenu.getSelection()()
+        
         playerMenu = Menu(playerNameList, players + [None]) # Not 100% sure I need to do this.
           
 print "Type \"playRPS()\""
