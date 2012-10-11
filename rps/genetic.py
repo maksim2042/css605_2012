@@ -1,6 +1,7 @@
 import constants
 from random import *
 import Queue
+import math
 
 ## generate 100 random genomes
 def make_genome(length):
@@ -18,7 +19,7 @@ def mutation(genome):
 		if random()<p: genome[i]=randint(0,2)
 	
 def fitness(genome):
-	return sum(genome)
+	return math.sin(sum(genome))
 
 def select_ind(new_population):
 	weights = [f for f,g in new_population]
@@ -34,7 +35,7 @@ def select_ind(new_population):
 		else:
 			if r1>prob[i-1] and r1<prob[i]:
 				return new_population[i]
-	return new_population[-1:]
+	return new_population[-1:][0]
 
 def population_fitness(population):
 	return [(fitness(g), g) for g in population]
@@ -46,12 +47,11 @@ def round(population):
 		
 	### now create mating pairs and mate them; save the kids
 	for i in range(int(len(new_population)/2)+1):
-		try:
-			mommy = select_ind(new_population)[1]
-			daddy = select_ind(new_population)[1]
-		except TypeError:
-			mommy = select_ind(new_population)[1]
-			daddy = select_ind(new_population)[1]			
+		mommy = select_ind(new_population)
+		daddy = select_ind(new_population)
+		#print mommy,daddy
+		mommy=mommy[1]
+		daddy=daddy[1]
 		
 		kid1,kid2  = crossover(mommy,daddy)
 		
@@ -66,11 +66,11 @@ def round(population):
 	return new_population
 		
 def run():
-	mutation_prob=0.1
+	mutation_prob=0.05
 	selection_size=0.5
-	num_rounds = 100
-	population_size=10
-	genome_size=10
+	num_rounds = 10000
+	population_size=100
+	genome_size=50
 	
 	population = population_fitness([make_genome(genome_size) for x in range(population_size)])
 	
@@ -81,5 +81,6 @@ def run():
 		
 		print sum([x[0] for x in population])/float(population_size)
 	
+	return population
 	
 	
