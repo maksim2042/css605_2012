@@ -111,7 +111,66 @@ class SeqPlayer(Player):
 			rem=len(self.move_history)% len(self.plays)
 			self.choice=self.plays[rem]
 		return (self.choice)
-
+		
+class SimpleSeqPlayer(Player):
+	def __init__(self):
+		Player.__init__(self)
+		self.plays=['ROCK','PAPER','SCISSORS','SCISSORS','PAPER','PAPER','ROCK']
+	
+	def go(self):
+		if len(self.plays)>len(self.move_history):
+			self.choice=self.plays[len(self.move_history)]
+		else:
+			rem=len(self.move_history)% len(self.plays)
+			self.choice=self.plays[rem]
+		return (self.choice)
+		
+class GeneticPlayer(Player):
+	def __init__(self):
+		Player.__init__(self)
+		self.counter=0
+		self.r=10
+		self.n=10
+		self.population=[]
+		self.strategies=[]
+		for x in range(self.n):
+			self.genes()
+		self.plays=self.population[random.randrange(0,self.n-1)]
+		
+	def genes(self):
+		for i in range(self.r):
+			self.strategies.append(random.choice(c.CHOICES))
+		self.population.append(self.strategies)
+		self.strategies=[]		
+		
+	def go(self):
+		if len(self.plays)>len(self.move_history):
+			self.choice=self.plays[len(self.move_history)]
+		else:
+			rem=len(self.move_history)% len(self.plays)
+			self.choice=self.plays[rem]
+		self.counter=self.counter+1
+		return (self.choice)
+		self.test()
+				
+	def test(self):
+		self.altmoves=[]
+		self.altmoves=[e[-1] for e in self.population]
+		self.opphistory=self.move_history[-1][-1]
+		o=self.opphistory
+		self.scores=[]
+		self.scorelist=[]
+		for x in self.altmoves:
+			if x == 'ROCK' and o == 'PAPER': self.scorelist.append(-1)
+			elif x == 'ROCK' and o == 'SCISSORS': self.scorelist.append(1)
+			elif x == 'PAPER' and o == 'SCISSORS': self.scorelist.append(-1)
+			elif x == 'PAPER' and o == 'ROCK': self.scorelist.append(1)
+			elif x == 'SCISSORS' and o == 'ROCK': self.scorelist.append(-1)
+			elif x == 'SCISSORS' and o == 'PAPER': self.scorelist.append(1)
+			else: self.scores.append(0)
+		self.scorelist.append(self.scores)
+		self.scores=[]
+				
 class MLPlayer(Player):
 	def __init__(self):
 		Player.__init__(self)
@@ -263,6 +322,7 @@ class MyPlayer(Player):
 			else:
 				self.dist_s=100
 			return self.dist_s
+
 			
 
 		

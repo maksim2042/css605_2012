@@ -15,17 +15,20 @@ def playRound(p1, p2):
 	p2.result(result,[move2,move1])
 	
 def playGame():
-        for i in range(100):
+        for i in range(input('How many rounds?...')):
                 playRound(p1,p2)
                 print '--------------------'
-        print 'player 1:', p1
-        print 'player 2:', p2
-
-players = (p.RandomPlayer(),p.StupidPlayer(),p.T4TPlayer(),p.SeqPlayer(),p.MLPlayer(),p.MyPlayer())
+        
+players = (p.RandomPlayer(),p.StupidPlayer(),p.T4TPlayer(),p.SeqPlayer(),p.MLPlayer(),p.MyPlayer(),p.AltT4TPlayer())
 p1 = random.choice(players)
 p1.id = 'TEST'
 p2 = random.choice(players)
 p2.id = 'COMPUTER'
+
+p1=p.GeneticPlayer()
+p1.id = 'Player 1:'
+p2=p.SimpleSeqPlayer()
+p2.id ='Player 2:'
 
 def shuffle():
         p1 = random.choice(players)
@@ -34,6 +37,4 @@ def shuffle():
         p2.score_history=[]
         p1.move_history=[]
         p2.move_history=[]
-        print 'player 1:', p1
-        print 'player 2:', p2
         
