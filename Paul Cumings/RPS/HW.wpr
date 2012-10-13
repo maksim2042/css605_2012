@@ -10,5 +10,6 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]
+proj.file-list = [loc('../GeneticAlgorithm/genetic.py')]
 proj.file-type = 'shared'
-proj.main-file = loc('ClassNotes.py')
+proj.main-file = loc('../GeneticAlgorithm/genetic.py')
