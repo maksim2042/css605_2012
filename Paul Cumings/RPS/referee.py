@@ -4,7 +4,7 @@ Defines a simple Referee class so that players have someone to play with
 
 import constants as c
 import player as p
- 
+import genetic as g
 
 def playRound(p1, p2):
 	move1=p1.go()
@@ -16,7 +16,7 @@ def playRound(p1, p2):
 	
 def playGame():
 	p1 = p.RandomPlayer(id="Max")
-	p2 = p.MarkovPlayer() 
+	p2 = g.GeneticPlayer() 
 	for i in range(1000):
 	  playRound(p1,p2)
 		
