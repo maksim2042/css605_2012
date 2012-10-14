@@ -11,11 +11,10 @@ class GeneticPlayer(Player):
 	Player.__init__(self, id) 
 	       
 	self.mutation_prob=0.05
-	self.selection_size=0.5
-	#self.num_rounds = 10000
+	self.selection_size=0.5 
 	self.population_size=100
-	self.genome_size=100	
-	
+	self.genome_size=100 #interested to see if we can keep genome size small	
+	self.count_next = 0	
 	#create initial population
 	self.population = self.population_fitness([self.make_genome(self.genome_size) 
 	                                      for x in range(self.population_size)])
@@ -49,18 +48,20 @@ class GeneticPlayer(Player):
       
 	#generate genome fitness
     def fitness(self, genome):
-	if len(self.move_history) == 0:
+	
+	if len(self.score_history) == 0:
 	    return 0
-	else: 
-	    myhistory = self.rsp_to_int()
-	    count = 0
-	    myRange = 0.01
-	    for i in myhistory: 
-		if i == genome[count]:
-		    myRange += .01
-		    
+	
+	curScore = 0
+	# for now legs just measure wins
+	for i in self.score_history:
+	    if i[1] == 1:
+		curScore += 1
 	    
-	    return myRange
+	if curScore != 0:
+	    debug = curScore
+	
+	return curScore/(len(self.score_history)*1.0)
 	 
 
 	#select individual in new population
@@ -87,45 +88,60 @@ class GeneticPlayer(Player):
 	    return [(self.fitness(g), g) for g in population]
 			    
     def round(self, population):
+	
      cutoff = int(len(population)*self.selection_size)
      new_population = list(sorted(population)[:cutoff])
 
      ### now create mating pairs and mate them; save the kids
      for i in range(int(len(new_population)/2)+1):
-	     mommy = self.select_ind(new_population)
-	     daddy = self.select_ind(new_population)
-	     #print mommy,daddy
-	     mommy=mommy[1]
-	     daddy=daddy[1]
-	     
-	     kid1,kid2  = self.crossover(mommy,daddy)
-	     
-	     self.mutation(kid1)
-	     self.mutation(kid2)
-	     
-	     ##print kid1
-	     
-	     new_population.append((self.fitness(kid1), kid1))
-	     new_population.append((self.fitness(kid2), kid2))
-     
+	mommy = self.select_ind(new_population)
+	daddy = self.select_ind(new_population)
+	#print mommy,daddy
+	mommy=mommy[1]
+	daddy=daddy[1]
+	
+	kid1,kid2  = self.crossover(mommy,daddy)
+	
+	self.mutation(kid1)
+	self.mutation(kid2)
+	
+	##print kid1
+	
+	new_population.append((self.fitness(kid1), kid1))
+	new_population.append((self.fitness(kid2), kid2))
+
      return new_population
-	    
+
     def go(self):
 	 
-	#generations=[]
-	#for r in range(self.num_rounds):
-	#generations.append(population)
+	dict = {0:'ROCK', 1:'PAPER', 2:'SCISSORS'}
+	dict_inv = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
+	
 	self.population = self.round(self.population)
 	population_sorted = list(sorted(self.population))
 	#print sum([x[0] for x in self.population])/float(self.population_size)
 	pop_end =  population_sorted[-1][-1]
-	
+	 
 	if len(self.move_history) == 0:
-	    return 'ROCK'
+	    return dict[0]
 	else:
-	    return 'SCISSORS'
+	    #start over from the beginning of the genome
+	    if self.count_next >= len(pop_end): 
+		self.count_next = 0
+		'''
+		# do some debugging
+		 moves = []
+		 for r in self.move_history:
+		   moves.append(dict_inv[r[1]])
+	    
+		 print moves
+		 print pop_end
+		'''	    # lets compare
  
-
+	    return_next_move = next_rps_value = pop_end[self.count_next]
+	    self.count_next+=1
+	    return dict[return_next_move]
+  
      #return population
 
 	

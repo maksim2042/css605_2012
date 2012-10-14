@@ -15,7 +15,7 @@ def playRound(p1, p2):
 	p2.result(result,[move2,move1])
 	
 def playGame():
-	p1 = p.RandomPlayer(id="Max")
+	p1 = p.SequencePlayer(id="Paul")
 	p2 = g.GeneticPlayer() 
 	for i in range(1000):
 	  playRound(p1,p2)
