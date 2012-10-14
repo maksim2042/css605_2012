@@ -133,7 +133,6 @@ class GeneticPlayer(Player):
 		 moves = []
 		 for r in self.move_history:
 		   moves.append(dict_inv[r[1]])
-	    
 		 print moves
 		 print pop_end
 		'''	    # lets compare
