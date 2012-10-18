@@ -13,7 +13,7 @@ class GeneticPlayer(sp.Player):
 	def __init__(self):
 		sp.Player.__init__(self)
 		self.counter=0
-		self.r=7 # r = the number of genes in a single genome
+		self.r=input('How many genes are in one genome? (enter 20)..') # r = the number of genes in a single genome
 		self.n=input('How many different genomes?..')  # n = the population of genomes
 		self.population=[]
 		self.strategies=[]

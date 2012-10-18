@@ -7,7 +7,6 @@ import Opponent as o
 import Genetic as g
 import random as r
 import math as m
-import itertools
 
 def playRound(p1, p2):
 	move1=p1.go()
@@ -18,21 +17,16 @@ def playRound(p1, p2):
 	p2.result(result,[move2,move1])
 	
 def playGame():
-        p1Fitness=[]
         geneMean=0
-        genomeId=0
-        while geneMean<5:
+        pattern=[]
+        while len(pattern)==0:
+                genomeId=0
                 for x in p1.population:
                         p1.reset()
                         p2.reset()
                         p1.plays=x
                         for i in range(p1.r):
                                 playRound(p1,p2)
-                                print '--------------------'
-                        print 'player 1:', p1.id
-                        print 'player 2:', p2.id
-                        print '--------------------'
-                        print '--------------------'
                         if p1.myScore>0:
                                 p1Fitness.append([p1.myScore,genomeId])
                                 genomeId=genomeId+1
@@ -42,18 +36,19 @@ def playGame():
                 geneMean=sum([x[0] for x in p1Fitness])/float(len(p1Fitness))
                 print 'generation mean score:',geneMean
                 print '--------------------'
-                print '--------------------'
+                pattern=[x[1] for x in p1Fitness if x[0]>=p1.r]
+                if len(pattern)>0:
+                        print "winning sequence detected...."
+                        print p1.population[pattern[0]]
                 selection()
                 newpopulation()
-                selTable=[]
-                
-                
-
+                del p1Fitness[:]
+       
 def selection():
+        del selTable[:]
         for x in p1Fitness:
                 for i in range(x[0]):
                         selTable.append(x[1])
-        
 						
 def mutation(genome1,genome2):
 	p = mutation_prob
@@ -75,23 +70,17 @@ def newpopulation():
                 mutation(child1,child2)
                 newPopulation.append(child1)
                 newPopulation.append(child2)
-        #print newPopulation
-        #print '--------------------'
-        #print '--------------------'
-        print p1.population
-        #print '--------------------'
-        #print '--------------------'
+        
         p1.population=newPopulation
-        
-        
-        #print p1.population
+       
                 
-mutation_prob=0.05
+mutation_prob=0.1
 newPopulation=[]               
 selTable=[]                
 p1Fitness=[]
 weights=[]
 p1=g.GeneticPlayer()
 p1.id = 'Genetic Algorithm'
-p2=o.SimpleSeqPlayer()
+p2=o.SeqPlayer()
 p2.id = 'Opponent'
+cutoff=p1.r

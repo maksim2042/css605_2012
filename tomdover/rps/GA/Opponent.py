@@ -76,7 +76,8 @@ class SeqPlayer(sp.Player):
 	def __init__(self):
 		sp.Player.__init__(self)
 		self.plays=[]
-		self.r=random.randrange(10,500,1)
+		#self.r=random.randrange(10,500,1)
+		self.r=20
 		for i in range(self.r):
 			self.plays.append(random.choice(c.CHOICES))
 				
@@ -91,7 +92,7 @@ class SeqPlayer(sp.Player):
 class SimpleSeqPlayer(sp.Player):
 	def __init__(self):
 		sp.Player.__init__(self)
-		self.plays=['ROCK','PAPER','SCISSORS','SCISSORS','PAPER','PAPER','ROCK']
+		self.plays=['ROCK','PAPER','SCISSORS','SCISSORS','PAPER','PAPER','ROCK','PAPER','SCISSORS','SCISSORS']
 	
 	def go(self):
 		if len(self.plays)>len(self.move_history):

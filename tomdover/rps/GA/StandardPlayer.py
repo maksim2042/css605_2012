@@ -33,10 +33,11 @@ class Player(object):
 		self.move_history.append(moves)
 		if res[0]==1:
 			self.myScore+=1
-			print self.id,"throws",self.choice,"and says: I WON!!! ", self.myScore
+			#print self.id,"throws",self.choice,"and says: I WON!!! ", self.myScore
 		elif res[0]==0:
-			print self.id,"throws",self.choice,"and says: IT'S A DRAW ", self.myScore
+			pass
+			#print self.id,"throws",self.choice,"and says: IT'S A DRAW ", self.myScore
 		else:
 			self.myScore-=1
-			print self.id,"throws",self.choice,"and says: I LOST :((( ", self.myScore
+			#print self.id,"throws",self.choice,"and says: I LOST :((( ", self.myScore
 			
