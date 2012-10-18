@@ -40,6 +40,9 @@ def playGame():
                 if len(pattern)>0:
                         print "winning sequence detected...."
                         print p1.population[pattern[0]]
+                        print '------------------------'
+                        print 'opponent strategy....'
+                        print p2.plays
                 selection()
                 newpopulation()
                 del p1Fitness[:]
