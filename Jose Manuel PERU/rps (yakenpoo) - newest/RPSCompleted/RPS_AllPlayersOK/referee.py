@@ -39,18 +39,18 @@ oponents= 5#random.randint(0,5)
 if oponents==0:
     players = (p.RandomPlayer('Tom'), p.RandomPlayer('Mary'))
 elif oponents==1:
-    players = (p.HumanPlayer('YOU'),p.RandomPlayer('Mary'))
+    players = (p.SequencePlayer('YOU'),p.RandomPlayer('Mary'))
 elif oponents==2:
-    players = (p.HumanPlayer('YOU'),p.StupidPlayer('Mary'))
+    players = (p.tftPlayer('YOU'),p.RandomPlayer('Mary'))
 elif oponents==3:
-    players = (p.tftPlayer('Jim'),p.RandomPlayer('Lidia'))
+    players = (p.tftPlayer('Jim'),p.SequencePlayer('Lidia'))
 elif oponents == 4:
-    players = (p.SequencePlayer('Pepe'),p.tftPlayer('Mary'))      
+    players = (p.GAPlayer('Pepe'),p.tftPlayer('Mary'))      
 elif oponents == 5:
     players = (p.RandomPlayer('Pepe'),p.GAPlayer('Mary'))
 else :
-    players = (p.RandomPlayer('Jim'),p.StupidPlayer('Lidia'))      
+    players = (p.RandomPlayer('Jim'),p.SequencePlayer('Lidia'))      
 
 #+++++++++++++++++++++++    
-rps(players,pointsToWin=50)
+rps(players,pointsToWin=20)
 #**************

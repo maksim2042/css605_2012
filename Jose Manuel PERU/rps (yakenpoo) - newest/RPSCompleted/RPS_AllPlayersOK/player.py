@@ -5,7 +5,7 @@ Created on Oct 18, 2012
 '''
 
 import constants as c
-from random import *
+from random import randint, random
 import heapq
 
 class Player(object):
@@ -95,7 +95,6 @@ class GAPlayer(Player):
         self.sequencePosition+=1
         if self.sequencePosition==len(self.GASequence):
             self.GASequence = self.generateGASequence(self.GASequence,self.scoreinSequence,self.score_history)
-            print self.GASequence
             self.sequencePosition=0  
             self.scoreinSequence=0   
         elif len(self.score_history)>0:
