@@ -12,11 +12,8 @@ def playRound(p1, p2):
 	p1.result(result,[move1,move2])
 	result.reverse()
 	p2.result(result,[move2,move1])
-	
-p1 = p.RandomPlayer()
-p2 = p.RandomPlayer()   
 
 def playGame():
 	for i in range(10):
-		playRound(p1,p2)
+		playRound(p1, p2)
 		
