@@ -2,7 +2,7 @@
 playermachine.py
 
 10-6-12
-updated 10-11-12
+updated 10-18-12
 
 Brendon Fuhs
 
@@ -10,9 +10,7 @@ Brendon Fuhs
 
 import constants as c
 import random as r
-# import Queue as q
-# import itertools as it
-
+import Queue as q
 
 # CSS 605 class standard (minus the chatter) for an RPS Player
 # Maybe I could have just imported this
@@ -40,193 +38,108 @@ class Player(object):
         else:
             self.myScore-=1
 
-
 class FSMPlayer(Player):
-    def __init__(self, id="noID", nodeNum=None, nodeList=None):
+    def __init__(self, id="noID"):
         Player.__init__(self, id="noID")
-        self.id=id
-        self._nodeNum_ = nodeNum
-        self.nodeList = nodeList
-        if self._nodeNum_==None:
-            self._nodeNum_ = len(nodeList)
-        else:
-            self.nodeList = [{}]*self._nodeNum_
-            self.nodeList = map(self.randomizeNode,self.nodeList)
-        # This might break if both or none of nodeNum and nodeList are supplied
-        
-        # Nodes are a dict of dicts.
-        # RPS input keys for dicts with keys "output" and "nextNode" 
+        self.nodeList = [{}]
+        self.currentNode = self.nodeList[0]
 
-        self.currentNode = self.nodeList[0] # Set start to node zero
+    # Randomizes the states/nodes
+    def randomizeNodeList(self, nodeNum):
+        self.nodeList = [{}]*nodeNum
+        self.nodeList = map(self.randomizeNode,self.nodeList)
+        self.currentNode = self.nodeList[0]
 
     # Randomizes the contents of a state / node
-    def randomizeNode(self,node): # Do I need to feed this nodeNum?
+    def randomizeNode(self, node):
+        nodeNum = len(self.nodeList)
         for opponentMove in c.CHOICES:
             node[opponentMove] = { "output" :  c.CHOICES[r.randint(0,2)],
-                                    "nextNode" : self.nodeList[r.randint(0,self._nodeNum_-1)] }
+                                   "nextNode" : self.nodeList[r.randint(0,nodeNum-1)] }
         return node
 
-    # responds to a move and iterates the machine forward
+    # Responds a move and iterates the machine forward to the next state/node
     def respondTo(self,opponentMove):
         ourResponse = self.currentNode[opponentMove]
         self.currentNode = ourResponse["nextNode"]
         return ourResponse["output"]
 
-    # checks to see if the object itself is in the other collection
-    # This is inefficient
-    def isin(self, a, collection):
-        for b in collection:
-            if a is b:
-                return True
-        return False
-
-    # Gets a subTree
-    def getSubTree(self, startNodeIndex, treeNodeNum):
-        assert(treeNodeNum<=len(self.nodeList)/2)
-        startNode = self.nodeList[startNodeIndex]
-        subTree = []
-        
-        # recursive depth search to get subTree
-        def depthSearch(thisNode, searchLength):
-
-            if searchLength <= 0:
-                return
-            if thisNode in subTree:
-                ###################
-                #print len(subTree)
-                #print len(self.nodeList)
-                #print [node for node in self.nodeList if node not in subTree]
-                #print "subtree ", subTree
-                #print " "
-                #print " "
-                #print "nodelist ", self.nodeList
-                print [node for node in self.nodeList if not isin(node,subTree)]
-                assert (len([node for node in self.nodeList if not self.isin(node,subTree)])>0)
-                nextNode = r.choice([node for node in self.nodeList if not self.isin(node,subTree)])
-                depthSearch(nextNode, searchLength)
-            else:
-                subTree.append(thisNode)
-                searchLength -= 1
-                for inputMove in sorted(c.CHOICES, key=lambda x: r.random()):
-                    nextNode = thisNode[inputMove]["nextNode"]
-                    depthSearch(nextNode, searchLength)
-                
-        # recursive breadth search to get subTree
-        def breadthSearch(thisNode, searchLength, firstTime = True): 
-
-            # Need to start out with this node
-            if firstTime==True:
-                subTree.append(thisNode)
-                searchLength -= 1
-
-            nextNodesList = []
-                             
-            for inputMove in sorted(c.CHOICES, key=lambda x: r.random()):
-                if searchLength <= 0:
-                    return
-                nextNode = thisNode[inputMove]["nextNode"]
-                if nextNode in subTree:
-                    continue
-                nextNodesList.append(nextNode)
-                subTreeIndices.append(nextNode)
-                searchLength -= 1
-
-            for nextNode in nextNodesList:
-                breadthSearch(nextNode, searchLength, firstTime = False)
-
-            if len(nextNodesList)==0:
-                ###################
-                #print len(subTree)
-                #print len(self.nodeList)
-                #print [node for node in self.nodeList if node not in subTree]
-                #print "subtree ", subTree
-                #print " "
-                #print " "
-                #print "nodelist ", self.nodeList
-                print [node for node in self.nodeList if node not in subTree]
-                assert (len([node for node in self.nodeList if not self.isin(node,subTree)])>0)
-                nextNode = r.choice([node for node in self.nodeList if not self.isin(node,subTree)])
-                breadthSearch(nextNode, searchLength)
-
-        # Choose randomly from the two search types and return result
-        r.choice((depthSearch,breadthSearch))(startNode, treeNodeNum)
-        return subTree
-
-    def go(self):
+    # Replaces Player's "go" method to get the FSMPlayer's move
+    def go(self): 
         if len(self.move_history)==0:
             return c.CHOICES[r.randint(0,2)]
         else:
             return self.respondTo(self.move_history[-1][1])
 
-'''
-class FSMPlayer(Player): # Woo multiple inheritance. I have no idea what I'm doing.
-    #def __init__(self, id="noID", nodeNum=None, nodeList=None):
-    #    Player.__init__(self, id=id)
-    #    FSM.__init__(self, nodeNum=nodeNum, nodeList=nodeList)
-        ################ Do I need more?
-    def __init__(self, id="noID", nodeNum=None, nodeList=None):
-        super(FSMPlayer, self).__init__(id="noID", nodeNum=None, nodeList=None)
+    # checks to see if the object itself is in a collection
+    # There is probably a slicker way of doing this
+    def isIn(self, a, collection):
+        for b in collection:
+            if a is b:
+                return True
+        return False
 
-    
-    def go(self):
-        if len(self.move_history)==0:
-            return c.CHOICES[r.randint(0,2)]
-        else:
-            return respondTo(self.move_history[-1][1])
+    ### UNUSED
+    # generates an iterator for objects that are actually in a collection
+    def thingThatIsIn(self, a, collection):
+        for b in collection:
+            if a is b:
+                yield a
 
-
-
-# Finite State Machine Player
-# 
-class FSM(Player):
-
-    ######## Seems like multiple optional inputs could confuse things.
-    def __init__(self, id="noID", nodeNum=2, nodeList=None):
-        Player.__init__(self, id="noID")
-        self.SWAPAMOUNT = 0.1 # Size of cross-over portion; should make this vary between .01 and .5 randomly?
-        self.MUTATIONRATE = 0.05 # Mutation probability for a node. 
-        self.id=id
-        self.nodeList = nodeList # This will be a list of nodes in the machine
-        self.nodeNum = nodeNum
-        ##########
-        print self.nodeNum # WHY IS ONLY ONE OF THESE PRINTING????
-        ######
-        
-        if self.nodeList==None: # Populate a random machine if none supplied
-            self.nodeList = [{}]*self.nodeNum
-            self.nodeList = map(self.randomizeNode,self.nodeList)
+    # Gets a subtree using depth search. Probably not the most efficient way of doing this.
+    def getDepthTree(self, thisNodeIndex,treeNodeNum):
+        nodeStack = [] 
+        subTree = []
+        nodeNum = len(self.nodeList)
+        thisNode=self.nodeList[thisNodeIndex]
+        nodeStack.append(thisNode)
+        while True:
+            thisNode = nodeStack[-1]
+            subTree.append(thisNode)
+            if len(subTree)==treeNodeNum:
+                return subTree
+            adjacentNodes = [ thisNode[inputMove]["output"] for inputMove in c.CHOICES ]
+            r.shuffle(adjacentNodes)
             
-        self.nodeNum = len(self.nodeList) # number of states in machine
-        self.currentNode = self.nodeList[0] # Zero is start
+            didWeStack = False
+            for node in adjacentNodes:
+                if not self.isIn(connectedNode, subTree):
+                    nodeStack.append(thisNode)
+                    didWeStack = True
+                    break
+            if didWeStack==FALSE:
+                nodeStack.pop()
+            if len(nodeStack)==0:
+                nextNode = r.choice([node for node in self.nodeList if not self.isIn(node,subTree)])
+                nodeStack.append(nextNode) ###### Slightly nervous about above line        
+            
+    def getBreadthTree(self, thisNodeIndex,treeNodeNum):
+        nodeQueue=q.Queue()
+        subTree = []
+        nodeNum = len(self.nodeList)
+        thisNode=self.nodeList[thisNodeIndex]
+            
+        while True:
+            subTree.append(thisNode)
+            nodeQueue.put(thisNode)
+            adjacentNodes = [ thisNode[inputMove]["output"] for inputMove in c.CHOICES ]
+            for node in adjaacentNodes:
+                if (node in self.nodeList and not self.isIn(node,subTree)):
+                    subTree.append(node)
+                    if len(subTree)==treeNodeNum:
+                        return subTree
+                    nodeQueue.put(node)
+            if nodeQueue.empty():
+                thisNode = r.choice([node for node in self.nodeList if not self.isIn(node,subTree)])
+            else: ######
+                thisNode = nodeQueue.pop()
 
+    def mutate(self, prob):
+        assert(0<=prob<=1)
+        for node in self.nodeList:
+            for inputMove in node:
+                if r.random < prob:
+                    node[inputMove]["output"] = c.CHOICES[r.randint(0,2)]
+                if r.random < prob:
+                    node[inputMove]["nextNode"] = self.nodeList[r.randint(0,nodeNum-1)]
 
-
-
-    # This reaches into another player, mixes genetic material with it,
-    # applies mutation, and returns nodeLists for (ONE OR TWO???) children
-    def mateWith(self,otherFSM):
-
-        # Maybe change indices to swap to an anonymous list of two lists
-        indicesToSwap = map( self.getSubTree,
-                             [self.nodeList, otherFSM.nodeList],
-                             [r.choice(range(self.nodeNum)), r.choice(range(otherFSM.nodeNum))],
-                             [int(self.SWAPAMOUNT * min(self.nodeNum,otherFSM.nodeNum))]*2 )
-
-        child1 = copy.deepcopy(self.nodeList) ### Do I need to deep copy these so they don't leek or get deleted??
-        child2 = copy.deepcopy(otherFSM.nodeList) # Or should I shallow copy just to make the next thing work?
-
-        for i in self.nodeNum:
-            if i in indicesToSwap[0]:
-                child1[i] = otherFSM.nodeList[indicesToSwap[1][i]]
-            if r.random() < self.MUTATIONRATE:
-                child1[i] = randomizeNode(child1[i])
-
-        for i in otherFSM.nodeNum:
-            if i in indicesToSwap[1]:
-                child2[i] = self.nodeList[indicesToSwap[0][i]]
-            if r.random() < self.MUTATIONRATE:
-                child2[i] = randomizeNode(child2[i])
-        ### I should probably be implementing mutation below the node level.
-                    
-        return (child1, child2)
-'''
