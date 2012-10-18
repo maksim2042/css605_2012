@@ -159,9 +159,13 @@ FSM debugging
 class FSMPlayer(Player):
 	def __init__(self, id='noID'):
 		super(FSMPlayer, self).__init__(id)
+
+	def make_genome(length):
+		return [randint(0,3) for x in range(length)]
+
 	def go(self):
 		move = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
-		move_value = [0,2,1,2,1,0,0,0,1,2]
+		move_value = make_genome(10)
 		for a in move_value:
 		if current_state == None:
 			choice=int(random.uniform(0,3))

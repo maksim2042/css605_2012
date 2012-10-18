@@ -1,3 +1,7 @@
+"""
+building Nodes
+"""
+
 def START(a):
 	if a == '0':
 		return ROCK
