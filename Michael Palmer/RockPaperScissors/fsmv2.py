@@ -27,16 +27,12 @@ FSMNAME        = 'Name'
 FSMVALUE       = 'Value'
 FSMTRANSITIONS = 'Transitions'
 
+
 """
    finitestatemachinev2
    Stores the data and current state for a finite state machine
 """
 class finitestatemachinev2(object):
-    NODENAME           = 0
-    NODEVALUE          = 1
-    ROCKTRANSITION     = 2
-    PAPERTRANSITION    = 3
-    SICSSORSTRANSITION = 4
     """
       __init__
       legalmoves = a list of leagal moves for this FSM
@@ -63,11 +59,11 @@ class finitestatemachinev2(object):
     def addStates(self,startNode,statelist):
         self.startNode = startNode
         for state in statelist:
-            nodeName        = state[NODENAME]
-            nodeValue       = state[NODEVALUE]
-            rockTrans       = state[ROCKTRANSITION]
-            paperTrans      = state[PAPERTRANSITION]
-            scissorsTrans   = state[SCISSORSTRANSITION]
+            nodeName        = state[0]
+            nodeValue       = state[1]
+            rockTrans       = state[2]
+            paperTrans      = state[3]
+            scissorsTrans   = state[4]
             self.addState(nodeName,nodeValue,rockTrans,paperTrans,scissorsTrans)
 
     def reset(self):
@@ -110,6 +106,7 @@ def fsmplayerfactory(fsmplayertype,sequence=None):
     fsm = finitestatemachinev2() 
     if   fsmplayertype == ROCKPLAYER:
          fsm.startNode = 'R'
+         fsm.currentNode = 'R'
          fsm.addState('R',c.ROCK,'R','R','R')
     elif fsmplayertype == SCISSORSPLAYER:
          fsm.startNode = 'S'

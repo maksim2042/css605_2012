@@ -23,12 +23,10 @@ class Player(object):
 		self.move_history.append(moves)
 		if res[0]==1: 
 			self.myScore+=1
-			print "I WON!!! ", self.myScore
 		elif res[0]==0:
-			print 'DRAW ', self.myScore
+                        pass
 		else:
 			self.myScore-=1
-			print 'I LOST :((( ', self.myScore
 		
 class RandomPlayer(Player):
 	def __init__(self):
