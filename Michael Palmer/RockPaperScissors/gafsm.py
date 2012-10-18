@@ -5,7 +5,7 @@ import player as p
 import referee as ref
 
 def test():
-   res = ga(300,50,8,10,f.fsmplayerfactory(f.REPEATPLAYER))
+   res = ga(300,50,8,10,f.fsmplayerfactory(f.TITFORTATPLAYER))
    res.sort()
    return res
 
@@ -18,8 +18,8 @@ def ga(generations,population,genomesize,rounds,fsmplayer):
        newpop = []
        newpop[0:population/2] = scored[0:population/2]
        while len(newpop) < population:
-           p1 = tournamentselect(scored)
-           p2 = tournamentselect(scored)
+           p1 = select_ind(scored)[1]
+           p2 = select_ind(scored)[1]
            p1,p2 = single_point(p1,p2)
            p1 = mutate_rpsfsm(p1)
            p2 = mutate_rpsfsm(p2)
@@ -30,6 +30,22 @@ def ga(generations,population,genomesize,rounds,fsmplayer):
        print scores
            
     return scored
+
+def select_ind(new_population):
+	weights = [f for f,g in new_population]
+	s=float(sum(weights))+0.0001
+	new_weights = [w/s for w in weights]
+	prob = [sum(new_weights[:i+1]) for i in range(len(new_weights))]
+	
+	r1=r.uniform(0,1)
+	for i in range(len(new_population)):
+		if i==0: 
+			if r1<prob[i]:
+				return new_population[i]
+		else:
+			if r1>prob[i-1] and r1<prob[i]:
+				return new_population[i]
+	return new_population[-1:][0]
 
 def tournamentselect(population):
    p1 = r.choice(population)
@@ -60,7 +76,7 @@ def build_randomrpsfsm(statecount,moves):
     return randomfsm
 
 
-def single_point(pone,ptwo,pcross = 0.6):
+def single_point(pone,ptwo,pcross = 1):
         cross = r.uniform(0,1)
         cone = list(pone)
         ctwo = list(ptwo)
