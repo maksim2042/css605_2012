@@ -23,12 +23,12 @@ class Player(object):
 		self.move_history.append(moves)
 		if res[0]==1: 
 			self.myScore+=1
-			print "I WON!!! ", self.myScore
+			print self.id, self.move_history[-1][0], "I WON!!! ", self.myScore
 		elif res[0]==0:
-			print 'DRAW ', self.myScore
+			print self.id, self.move_history[-1][0], 'DRAW ', self.myScore
 		else:
 			self.myScore-=1
-			print 'I LOST :((( ', self.myScore
+			print self.id, self.move_history[-1][0], 'I LOST :((( ', self.myScore
 		
 class RandomPlayer(Player):
 
@@ -37,7 +37,9 @@ class RandomPlayer(Player):
 	
 	def go(self):
 		choice=int(random.uniform(0,3))
-		return(c.CHOICES[choice])
+		move = c.CHOICES[choice]
+		return move
+
 
 class SequencePlayer(Player):
 
@@ -66,24 +68,24 @@ class HumanPlayer(Player):
                 self.id = raw_input('Enter player name, and press return.')
 
         def go(self):
-
 		move = raw_input('Enter your move, ROCK, PAPER or SCISSORS, and press return.')
 		if move in c.CHOICES:
                         return move
                 else:
                         move = raw_input('Bad entry, please enter ROCK, PAPER or SCISSORS and press return. ')
                         return move
-
+                
 class Tit4TatPlayer(Player):
 
         def __init__(self, id="noID"):
                 Player.__init__(self, id)
 
         def go(self):
-                choice = int(random.uniform(0,3)
+                choice = int(random.uniform(0,3))
                 roundnumber = len(self.move_history)
                 if roundnumber == 0:
-                        return c.CHOICES[choice]
+                        move = c.CHOICES[choice]
                 else:
-                    return self.move_history[roundnumber-1][1]
+                        move = self.move_history[roundnumber-1][1]
+                return move
 

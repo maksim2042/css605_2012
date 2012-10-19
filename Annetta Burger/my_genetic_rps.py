@@ -1,11 +1,11 @@
 import constants
-import player as p
+import player
 from random import *
 import Queue
 import math
 
 
-class GeneticPlayer(p):
+class GeneticPlayer(Player):
 
     def __init__(self, id = "no_ID"):
         Player.__init__(self, id)
@@ -14,7 +14,6 @@ class GeneticPlayer(p):
 	self.num_rounds = 10000
 	self.population_size=100
 	self.genome_size=50
-
 
     ## generate 100 random genomes
     def make_genome(self, length):
@@ -87,8 +86,15 @@ class GeneticPlayer(p):
 		population = round(population, self.selection_size)
 
 		print sum([x[0] for x in population])/float(self.population_size)
-
+        print population[self.population_size-1][1]
 	return population[self.population_size-1][1]
 
+def main():
+    p1 = Player.SequencePlayer(id='Max')
+    p2 = Player.GeneticPlayer(id='Genie')
+    go(p2)
+    
+main()
+    
 
         
