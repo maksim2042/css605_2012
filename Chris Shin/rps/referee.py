@@ -1,9 +1,10 @@
 """
 Defines a simple Referee class so that players have someone to play with
 """
-
 import constants as c
 import player as p
+import random as random
+from math import *
 
 def playRound(p1, p2):
 	move1=p1.go()
@@ -16,4 +17,21 @@ def playRound(p1, p2):
 def playGame():
 	for i in range(10):
 		playRound(p1, p2)
+
+def GG():
+	for i in range(10):
+		playGame()
+
+
+"""
+Trying
+"""
+
+def playGame():
+	for i in range(10):
+		playRound(p1, p2)
+	oppmove = [e[0] for e in p2.move_history]	
+
+
+
 		

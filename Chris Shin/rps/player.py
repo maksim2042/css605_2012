@@ -2,9 +2,8 @@
 This class implements a very stupid simple player for the RPS game
 """
 import constants as c
-import random
-from math import *
 import sm as sm
+import random as random
 
 class Player(object):
 	def __init__(self, id='noID'):
@@ -161,21 +160,23 @@ class FSMPlayer(Player):
 		super(FSMPlayer, self).__init__(id)
 
 	def make_genome(length):
-		return [randint(0,3) for x in range(length)]
+		return [random.randint(0,3) for x in range(length)]	
 
 	def go(self):
 		move = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
-		move_value = make_genome(10)
+		move_value = [0,2,1,1,0,2,1,2,2,0] # move_value = make_genome(10)
+		global current_state
+		current_state = None
 		for a in move_value:
-		if current_state == None:
-			choice=int(random.uniform(0,3))
-			current_state = sm.START(choice)
-			return(c.CHOICES[choice])
-		else:
-			current_state = current_state(a)
-			move = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
-			key = [ k for k, v in move.iteritems() if v == a ][0]
-			return key
+			if current_state == None:
+				# choice=int(random.uniform(0,3))
+				current_state = sm.START(a)
+				key = [ k for k, v in move.iteritems() if v == a ][0]
+				return key
+			else:
+				current_state = current_state(a)
+				key = [ k for k, v in move.iteritems() if v == a ][0]
+				return key
 
 
 """
