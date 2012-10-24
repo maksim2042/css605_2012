@@ -56,19 +56,22 @@ def recombineMutateEtc( machineList, fitnessList, meanXoverFraction, xOverAltSit
 
         # Size of subtree is based on meanXoverSize
         treeNodeNum = int(max(1,min(r.gauss(meanXoverFraction*MACHINENUM, MACHINENUM/10.0),MACHINENUM/2))) ####Is this right?
-### THIS STUFF DOESN'T WORK YET
-#        xOverGenesFromMom = r.choice((mom.depthSearch,mom.breadthSearch))(startNodeIndexMom, treeNodeNum)
-#        xOverGenesFromDad = r.choice((dad.depthSearch,dad.breadthSearch))(startNodeIndexDad, treeNodeNum)
-#        def swapIndicesFor(genes,subtree): # an inefficient generator
-#            for node in subtree:
-#                for i in range(len(genes)):
-#                    if node is genes[i]:
-#                        yield i
-#        swapIndicesMom = [indices for indices in swapIndicesFor(mom.nodeList, xOverGenesFromMom)]
-#        swapIndicesDad = [indices for indices in swapIndicesFor(dad.nodeList, xOverGenesFromDad)]
-#        for [swapIndexMom, swapIndexDad] in zip(swapIndicesMom,swapIndicesDad):
-#            mom[swapIndexMom], dad[swapIndexDad] = dad[swapIndexDad], mom[swapIndexMom]
-###
+###### THIS STUFF DOESN'T WORK YET
+        xOverGenesFromMom = r.choice((mom.getDepthTree,mom.getBreadthTree))(startNodeIndexMom, treeNodeNum)
+        xOverGenesFromDad = r.choice((dad.getDepthTree,dad.getBreadthTree))(startNodeIndexDad, treeNodeNum)
+        print "Here? 1" ########################
+        def swapIndicesFor(genes,subtree): # an inefficient generator
+            for node in subtree:
+                for i in range(len(genes)):
+                    if node is genes[i]:
+                        yield i
+        print "Here? 2" ########################
+        swapIndicesMom = [indices for indices in swapIndicesFor(mom.nodeList, xOverGenesFromMom)]
+        swapIndicesDad = [indices for indices in swapIndicesFor(dad.nodeList, xOverGenesFromDad)]
+        print "Here? 3" ########################
+        for [swapIndexMom, swapIndexDad] in zip(swapIndicesMom,swapIndicesDad):
+            mom[swapIndexMom], dad[swapIndexDad] = dad[swapIndexDad], mom[swapIndexMom]
+######
         mom.mutate(mutateProb)
         dad.mutate(mutateProb)
     newGenesList = [copy.deepcopy(mom.nodeList) for mom in mommies] + [copy.deepcopy(dad.nodeList) for dad in daddies]
