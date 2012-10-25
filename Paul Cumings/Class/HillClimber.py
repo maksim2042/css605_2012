@@ -4,15 +4,15 @@ import exceptions
 from graphics import *
 
 dim=10
-inc = 0.1
-stop_delta=0.01
+inc = 0.001
+stop_delta=0.1
 temperature=1
 anneal_rate=0.001
  
 
 #set scale of graph
 scale_x_graph = 20
-scale_y_graph = 100
+scale_y_graph = 40
 
 #set the normal distribution graph start points
 range_startX = 30
@@ -22,10 +22,6 @@ range_startY = 80
 Width = 500
 Height = 500
  
-
-#maximum anneal value
-max_value = 10
-
 #graphwin
 win = GraphWin()
 
@@ -98,25 +94,23 @@ def run(function):
 	start = random_x()
 	x=start
 
-
 	surface = []
-
 	while True:
 		x,f=function(x)
 		surface.append(f)
-		#print x
+		print x,f
 		draw_items.Draw(f)
 		if temperature < 0.1:
 			delta=abs(surface[-1]-surface[-4])
 			if delta < 1:
+				draw_items.Draw(f)
 				return surface, x
-
-
 
 
 class DrawItems(object):
 	def __init__(self):
 		self.counter = .01
+		self.draw_counter = 0
 		self.point2 = Point(0,0)		
 
 	def Close(self):
@@ -126,15 +120,17 @@ class DrawItems(object):
 		
 	def Draw(self, value):
 		
-		point1 = Point(self.counter*scale_x_graph + range_startX, 
-			                                       value*scale_y_graph+range_startY)
-		if self.counter == 0:
-			self.point2 = point1	    
-		p = Line(point1, self.point2)
-		self.point2 = point1 
-		p.draw(win)
-		
+		if self.draw_counter % 20 == 0:
+			point1 = Point(self.counter*scale_x_graph + range_startX, 
+				                                       value*scale_y_graph+range_startY)
+			if self.counter == 0:
+				self.point2 = point1	    
+			p = Line(point1, self.point2)
+			self.point2 = point1 
+			p.draw(win)
+			
 		self.counter += .01
+		self.draw_counter += 1
 		 
 	
 	def DrawChart(self):
