@@ -61,7 +61,8 @@ class landscape3d(object):
                 elif (refX+i) >= 0 and (refY+j) >= 0:
                     if (refX+i)<=(maxx-1) and (refY+j)<=(maxy-1):
                         if self.parcels[refX+i][refY+j].peak == 0:
-                            heat = self.parcels[refX][refY].heat * 0.75
+                            #random degrees lead to numerous local maximums
+                            heat = self.parcels[refX][refY].heat * 0.90 #random.uniform(0.5,0.95)
                             self.parcels[refX+i][refY+j].heat = heat
                             self.parcels[refX+i][refY+j].peak = 1 + self.parcels[refX][refY].peak
 
