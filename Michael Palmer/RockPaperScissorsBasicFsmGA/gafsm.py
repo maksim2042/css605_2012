@@ -1,13 +1,24 @@
+"""
+CSS 605 Genetic Algorithm Rock-Paper-Scissors
+
+See testtitfortat and testrepeat for example runs
+"""
+
 import random as r
 import constants as c
 import fsmv2 as f
 import player as p
 import referee as ref
 
-def test():
-   res = ga(300,50,8,10,f.fsmplayerfactory(f.TITFORTATPLAYER))
+def testtitfortat():
+   res = ga(350,50,5,10,f.fsmplayerfactory(f.TITFORTATPLAYER))
    res.sort()
-   return res
+   return res[len(res) - 1]
+
+def testrepeat():
+   res = ga(350,50,5,10,f.fsmplayerfactory(f.REPEATPLAYER))
+   res.sort()
+   return res[len(res) -1 ]
 
 def ga(generations,population,genomesize,rounds,fsmplayer):
     randompop = build_rpspopulation(population,genomesize,c.CHOICES)
@@ -27,7 +38,7 @@ def ga(generations,population,genomesize,rounds,fsmplayer):
            newpop.append((getscore(p2,fsmplayer,rounds),p2))
        scored = newpop
        scores = sum( [x[0] for x in scored])
-       print scores
+
            
     return scored
 

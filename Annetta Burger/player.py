@@ -4,10 +4,20 @@ This class implements a very stupid simple player for the RPS game
 import constants as c
 import random
 
+# Credit random_pick module from online Python Cookbook, Kevin Parks & Peter Cogolo
+# Module for picking a move based on probability
+def random_pick(rps_list, prob_list):
+        x = random.uniform(0, 1)
+        cumulative_probability = 0.0
+        for item, item_probability in zip(rps_list, prob_list):
+                cumulative_probability += item_probability
+                if x < cumulative_probability: break
+        return item   
+
 class Player(object):
 	
 	def __init__(self, id="noID"):
-		self.myScore=0
+                self.myScore=0
 		self.score_history=[]
 		self.move_history=[]
 		self.id=id
@@ -30,6 +40,14 @@ class Player(object):
 			self.myScore-=1
 			print self.id, self.move_history[-1][0], 'I LOST :((( ', self.myScore
 		
+class DumbPlayer(Player):
+
+        def __init__(self, id="noID"):
+                Player.__init__(self, id)
+
+        def go(self):
+                return c.PAPER
+
 class RandomPlayer(Player):
 
 	def __init__(self, id="noID"):
@@ -89,3 +107,41 @@ class Tit4TatPlayer(Player):
                         move = self.move_history[roundnumber-1][1]
                 return move
 
+class SMLPlayer(Player):
+
+    def __init__(self, id='noID'):
+        Player.__init__(self, id)
+        self.probs = [.333,.333,.333]
+
+    def go(self):
+        choice = int(random.uniform(0,3))
+        roundnumber = len(self.move_history)
+
+        #Calculate new move probabilities
+        if roundnumber == 0:
+            move = c.CHOICES[choice]
+        else:                               
+            last_op_move = self.move_history[roundnumber-1][1]
+            if last_op_move == c.ROCK:
+                self.probs[0] = abs(self.probs[0]+.05)
+                self.probs[1] = abs(self.probs[1]-.025)
+                self.probs[2] = abs(self.probs[2]-.025)
+            elif last_op_move == c.PAPER:
+                self.probs[1] = abs(self.probs[1]+.05)
+                self.probs[0] = abs(self.probs[0]-.025)
+                self.probs[2] = abs(self.probs[2]-.025)
+            else:
+                self.probs[2] = abs(self.probs[2]+.05)
+                self.probs[0] = abs(self.probs[0]-.025)
+                self.probs[1] = abs(self.probs[1]-.025)
+                                            
+            op_move = random_pick(c.CHOICES, self.probs)   #Predict opponent's move
+
+            if op_move == c.ROCK:                     #Calculate own move
+                move = c.PAPER
+            elif op_move == c.PAPER:
+                move = c.SCISSORS
+            else:
+                move = c.ROCK
+        
+        return move    
