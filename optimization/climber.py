@@ -111,4 +111,4 @@ class Agent(object):
 					return surface, x
 			
 		
-	
+run(anneal)
