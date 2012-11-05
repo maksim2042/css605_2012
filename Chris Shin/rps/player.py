@@ -45,17 +45,16 @@ class RandomPlayer(Player):
 class SeqPlayer(Player):
 	def __init__(self, id='noID'):
 		super(SeqPlayer, self).__init__(id)
+		self.seq_0 = int(random.uniform(0,3))
+		self.seq_1 = int(random.uniform(0,3))
+		self.seq_2 = int(random.uniform(0,3))
+		self.sequence =[self.seq_0, self.seq_1, self.seq_2]
+
 	def go(self):
-		for i in range(0, 10000, 3):
-			seq_0=int(random.uniform(0,3))
-			return(c.CHOICES[seq_0])
-		for i in range(1, 10000, 3):
-			seq_1=int(random.uniform(0,3))
-			return(c.CHOICES[seq_1])
-		for i in range(2, 10000, 3):
-			seq_2=int(random.uniform(0,3))
-			return(c.CHOICES[seq_2])
-		                               
+		remnant = len(self.move_history) % len(self.sequence)
+		choice = self.sequence[remnant]
+		return (c.CHOICES[choice])
+
 class HumanPlayer(Player):
 	def __init__(self, id='noID'):
 		super(HumanPlayer, self).__init__(id)
@@ -150,34 +149,55 @@ class MarkovPlayer(Player):
 						Mar_counter[strat] = 1
 				Mar = sorted(Mar_counter, key = Mar_counter.get, reverse = True)
 				return Mar[:1].pop()
-								 		
-"""
-FSM debugging
-"""
-
+								 	
 class FSMPlayer(Player):
 	def __init__(self, id='noID'):
 		super(FSMPlayer, self).__init__(id)
+		self.move = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
+		self.current_state = None
+		self.g = input('How many genomes do you want to generate?')
+		self.genomes = [ self.make_genome(10) for x in range(self.g)]
+		self.move_value = self.genomes[0]
+		# self.opp_move_value = []
 
-	def make_genome(length):
-		return [random.randint(0,3) for x in range(length)]	
+	def make_genome(self, length):
+		return [random.randint(0,2) for x in range(length)]	
 
 	def go(self):
-		move = {'ROCK':0, 'PAPER':1, 'SCISSORS':2}
-		move_value = [0,2,1,1,0,2,1,2,2,0] # move_value = make_genome(10)
-		global current_state
-		current_state = None
-		for a in move_value:
-			if current_state == None:
-				# choice=int(random.uniform(0,3))
-				current_state = sm.START(a)
-				key = [ k for k, v in move.iteritems() if v == a ][0]
-				return key
-			else:
-				current_state = current_state(a)
-				key = [ k for k, v in move.iteritems() if v == a ][0]
-				return key
+		# move_value = ['0','2','1','2','1','0','0','0','1','2']
+		# move_value = make_genome(10) 
+		#	return move_value
+		if len(self.move_value) > len(self.move_history):
+			choice=self.move_value[len(self.move_history)]
+			return (c.CHOICES[choice])
 
+		else:
+			residual = len(self.move_history) % len(self.move_value)
+			choice = self.move_value[residual]
+			return (c.CHOICES[choice])
+			
+		# self.fit()
+		
+		for a in self.move_value:
+			if self.current_state == None:
+				self.current_state = sm.START(a)
+				
+			else:
+				self.current_state = self.current_state(a)
+
+		if self.current_state == None:
+			print " empty string"
+		elif self.current_state in sm.F:
+			print " accepted.  State:",current_state.__name__
+		else:
+			print " not accepted.  State:",current_state.__name__		
+
+"""
+	def fit(self):
+		for m in self.move_history[1][0]:
+			vec = [v for k, v in self.move.iteritems() if k == m ][0]
+			self.opp_move_value.append(vec)
+"""
 
 """
 
