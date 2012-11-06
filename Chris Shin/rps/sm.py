@@ -33,3 +33,5 @@ def SCISSORS(a):
 		return PAPER
 	elif a == '2':
 		return SCISSORS
+
+F = [START, ROCK, PAPER, SCISSORS]		
