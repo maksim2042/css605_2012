@@ -14,8 +14,8 @@ class GeneticPlayer(sp.Player):
 		sp.Player.__init__(self)
 		self.counter=0
 		#self.r=input("How many genes are in one genome? (between 5-30)..") # r = the number of genes in a single genome
-		#self.r=random.randrange(5,30,1)
-		self.r=40
+		#self.r=random.randrange(5,10,1)
+		#self.r=40
 		self.n=input('How many different genomes? (recommend between 100-1000)..')  # n = the population of genomes
 		self.population=[]
 		self.strategies=[]
@@ -24,6 +24,7 @@ class GeneticPlayer(sp.Player):
 		self.plays=self.population[0]
 	
 	def genes(self):
+		self.r=random.randrange(5,10,1)
 		for i in range(self.r):
 			self.strategies.append(random.choice(c.CHOICES))
 		self.population.append(self.strategies)

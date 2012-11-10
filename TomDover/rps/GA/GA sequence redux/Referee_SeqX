@@ -63,9 +63,9 @@ def playAgain():
         a=raw_input("play again?... ")
 
         if a == "y":
-                p1=None
-                p2=None
-                p1=g.GeneticPlayer()
+                pA=None
+                pB=None
+                pA=g.GeneticPlayer()
                 p1.id = 'Genetic Algorithm'
                 p2=o.SeqPlayer()
                 p2.id = 'Opponent'
@@ -106,7 +106,6 @@ p1=g.GeneticPlayer()
 p1.id = 'Genetic Algorithm'
 p2=o.SeqPlayer()
 p2.id = 'Opponent'
-
 cutoff=p1.r
 playGame()
 
