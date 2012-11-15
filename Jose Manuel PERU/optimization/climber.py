@@ -76,10 +76,7 @@ def run(function):
     temperature = 1
     start = random_x()
     x=start
-
-
     surface = []
-
     while True:
         x,f=function(x)
         surface.append(f)
@@ -88,3 +85,4 @@ def run(function):
             delta=abs(surface[-1]-surface[-4])
             if delta < 1:
                 return surface, x
+run()
