@@ -57,17 +57,16 @@ def fitness(genome, weights):
 		print row_fitness				
 	return f
 
-fitness(g,w)
-
 
 x=[]
 y=[]
-
 for i in range(1000):
 	g=random_genome()
 	x.append(toInt(g))
 	y.append(fitness(g,w))
 
+
+fitness(g,w)
 plot.scatter(x,y)
 plot.show()	
 

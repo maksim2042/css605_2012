@@ -92,8 +92,8 @@ class SeqPlayer(sp.Player):
 	def __init__(self):
 		sp.Player.__init__(self)
 		self.plays=[]
-		#self.r=random.randrange(5,30,1)
-		self.r=40
+		self.r=random.randrange(5,10,1)
+		#self.r=40
 		for i in range(self.r):
 			self.plays.append(random.choice(c.CHOICES))
 				
