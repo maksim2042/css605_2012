@@ -6,8 +6,9 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-N = 3
+N = 5
 K = 2
+RUNS = 10000
 
 def dependencyMatrix(n,k):
     #n = string length
@@ -64,11 +65,23 @@ def fitnessMatrix(dmatrix,wmatrix,n,k):
             #add weight to a temp string
             ts.append(wmatrix[j][state][wi])
         f.append(np.mean(ts))
-
-    print f
     return f
+
+def walkLandscape(strat,fmatrix):
+    #convert to index and then get fitness
+    index = 0
+    strat.reverse()
+    for i in range(len(strat)):
+        index += (2**i) * strat[i]
+    strat.reverse()
+    return fmatrix[index]
     
-        
+def changeStrategy(strat):
+    t=[strat[i] for i in range(len(strat))]
+    bit = random.randint(0,len(strat)-1)
+    new = np.mod(strat[bit]+1,2)
+    t[bit] = new
+    return t
 ####
 #main
 ####
@@ -77,4 +90,26 @@ depMatrix = dependencyMatrix(N,K)
 wtMatrix = weightMatrix(depMatrix,N,K)
 ftMatrix = fitnessMatrix(depMatrix,wtMatrix,N,K)
 
+data=[] #collect the number of tries before local max
+for j in range(RUNS):
+    strategy = [random.randint(0,1) for i in range(N)]
+    history=[]
+    best = 0
+    bestStrat = strategy
+    result = 0
+    for i in range(100): #number of tries for each run
+        result = walkLandscape(strategy,ftMatrix)
+        if result > best:
+            best = result
+            bestStrat = strategy
+            history.append([bestStrat,best])
+    
+        #print strategy, result, bestStrat, best #debug
+        strategy=changeStrategy(bestStrat)
+    data.append(len(history))
 
+#p1=[]
+#p1=[history[i][1] for i in range(len(history))]
+plt.hist(data) #plot histogram of tries
+plt.show()
+    
