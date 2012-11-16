@@ -1,3 +1,5 @@
+*.pyc
+*.DS_Store
 
 Paul Cumings/Bat-Frog-Agent-Example/.DS_Store
 
