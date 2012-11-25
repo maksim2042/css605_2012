@@ -37,6 +37,7 @@ class Agent(object):
         self.id =str(uuid.uuid4()).split('-')[4]
         self.dim=len(genome)
         self.env=env
+        self.env.agents.add(self)
 
         self.x,self.y = self.returnBirthPlace(parents)
         self.genome   = genome
@@ -108,6 +109,18 @@ class Agent(object):
         else:
             self.eats_plants = False
         
+
+    def isSameSpecies(self,otherAgent):
+
+        if len(self.genome) != len(otherAgent.genome):
+            return False
+        else:
+            diffs = sum([ abs(otherAgent.genome[x] - self.genome[x]) for x in range(len(self.genome))])
+            if diffs < 300:
+                return True
+            else:
+                return False
+            
             
     def run():
         self.move()
