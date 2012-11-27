@@ -127,7 +127,7 @@ class Agent(object):
         self.eat()
         self.fight()
         self.mate()
-        if self.energy==0: self.die()
+        if self.energy<=0: self.die()
         
     def move(self):
         ### TODO: decide where to go
