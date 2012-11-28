@@ -157,6 +157,7 @@ class Agent(object):
         pass
     def die(self):
         ### did our energy run out? or did we just get eaten?
+        self.env.agents.discard(self)
         self.isAlive = False
 
 
