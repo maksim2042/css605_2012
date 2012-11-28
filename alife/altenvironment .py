@@ -2,8 +2,7 @@ import random as r
 
 
 
-class Environment():
-    
+class Environment(object):    
     def __init__(self,dim,max_features=5):
         self.dim=dim
         self.feature_types = 'el,food,radiation'.split(',')  

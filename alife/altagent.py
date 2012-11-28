@@ -44,6 +44,8 @@ class Agent(object):
 
         self.setStandardGenomeAttributes(genome)
         self.setInitialEnergy(genome,parents)
+        self.age = 0
+        self.isAlive = True
 
     def returnBirthPlace(self,parents):
 
@@ -120,14 +122,20 @@ class Agent(object):
                 return True
             else:
                 return False
+
+    def shoulddie(self):
+        if self.energy<=0 or self.age> self.max_lifespan: return True
+        return False
             
-            
-    def run():
-        self.move()
-        self.eat()
-        self.fight()
-        self.mate()
-        if self.energy<=0: self.die()
+    def run(self):
+        if self.isAlive:
+           self.move()
+           if self.isAlive:self.eat()
+           if self.isAlive:self.mate()
+           if self.isAlive:self.fight()
+           self.age +=1 
+           if self.shoulddie(): self.die()
+        
         
     def move(self):
         ### TODO: decide where to go
@@ -149,7 +157,7 @@ class Agent(object):
         pass
     def die(self):
         ### did our energy run out? or did we just get eaten?
-        pass
+        self.isAlive = False
 
 
 
