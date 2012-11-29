@@ -3,9 +3,9 @@ from math import *
 import exceptions
 import nk
 import uuid
+from hottie import hot
 
-
-
+@hot
 class Agent(object):
 	
     def __init__(self, env, genome=None, coords=None):
@@ -21,40 +21,44 @@ class Agent(object):
     	else:
     	    self.genome=genome
     	    self.dim=len(genome)
-    	#weights=[randint(-100,100) for x in range(dim)]
-    	#self.weights=w
-	
+    	    
     	#### TODO :: IF BORN FROM PARENTS, INITIALIZE TO PARENTS LOCATION
     	self.x = randint(0,env.dim-1)
-    	self.y = (0,env.dim-1)
-	
+    	self.y = randint(0,env.dim-1)
+    	
     	#### TODO :: ALL OF THESE INITILIZED FROM GENOME
     	self.energy = 100 ### Initial energy
     	### how much energy do I spend moving about per unit of distance and elevation
     	self.energy_move_delta = 1 
-	
+    	
     	### how much energy do I spend in mating and childbirth?
     	self.energy_mating_delta = 1
     	self.energy_childbirth_delta = 10
-	
+    	
     	### what is my maximum lifespan?
     	self.max_lifespan = 100
-	
+    	
     	### what is my movement rate?
-    	self.movement_rate = 1
-	
+    	self.movement_rate = 3
+    	
     	### what is my vision radius?
     	self.vision_radius = 3
-	
+    	
     	### what is my size
     	self.size=1
     	self.growth_rate=0.01
-	
+    	
     	### what do I eat?
     	self.food_sorce='env' ### or 'prey' or 'all'
     	self.consumption_rate=1
 	
+	
     def run(self):
+        fov=self.env.getFOV(self.x,self.y,self.vision_radius)
+        print fov
+        
+        self.avoid_obstacles(fov)
+        """
         self.move()
         self.eat()
         self.fight()
@@ -62,7 +66,26 @@ class Agent(object):
         if self.energy==0: 
             self.die()
         return("!")
-
+        """
+    
+    def avoid_obstacles(self,fov):
+        obs=[]
+        for x,row in enumerate(fov):
+            for y,col in enumerate(row):
+                print col
+                if 'X' in col:
+                    obs.append((x-self.vision_radius,y-self.vision_radius))
+        
+        x=sum([x[0] for x in obs])/2.0
+        y=sum([x[y] for x in obs])/2.0
+        
+        eu_dist=math.sqrt(x**2 + y**2)
+        ratio=self.movement_rate/eu_dist
+        new_x=int(x*ratio)
+        new_y=int(y*ratio)
+        
+        return obs
+    
     def move(self):
         ### TODO: decide where to go
         pass
