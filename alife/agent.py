@@ -10,21 +10,23 @@ class Agent(object):
 	
     def __init__(self, env, genome=None, coords=None):
     	self.id=str(uuid.uuid4()).split('-')[4]
-    	self.dim=len(genome)
+    	self.env=env
     	self.inc = 0.1
     	self.stop_delta=0.01
     	self.temperature=1
     	self.anneal_rate=0.001
     	if genome == None:
+    	    self.dim=env.dim
     	    self.genome=self.random_x()
     	else:
     	    self.genome=genome
+    	    self.dim=len(genome)
     	#weights=[randint(-100,100) for x in range(dim)]
     	#self.weights=w
 	
     	#### TODO :: IF BORN FROM PARENTS, INITIALIZE TO PARENTS LOCATION
-    	self.x = random.randint(0,env.dim-1)
-    	self.y = random.randint(0,env.dim-1)
+    	self.x = randint(0,env.dim-1)
+    	self.y = (0,env.dim-1)
 	
     	#### TODO :: ALL OF THESE INITILIZED FROM GENOME
     	self.energy = 100 ### Initial energy
@@ -59,6 +61,7 @@ class Agent(object):
         self.mate()
         if self.energy==0: 
             self.die()
+        return("!")
 
     def move(self):
         ### TODO: decide where to go
