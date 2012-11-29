@@ -22,3 +22,6 @@ def run(agents):
 			f=agent.anneal_agent()
 			trajectories[agent.id].append(f)
 	return trajectories
+	
+	
+	https://github.com/maksim2042/css605_2012.git
