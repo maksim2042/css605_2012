@@ -19,6 +19,9 @@ def run(agents):
 	trajectories = defaultdict(list)
 	for time in range(max_time):
 		for agent in r.sample(agents,len(agents)):
-		    out=agent.run()
-		    trajectories[agent.id].append(out)
+		    if agent.alive==True:
+		        out=agent.run()
+		        trajectories[agent.id].append(out)
+		    else:
+		        agents.remove(agent)
 	return trajectories

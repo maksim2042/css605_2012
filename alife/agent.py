@@ -10,6 +10,8 @@ class Agent(object):
 	
     def __init__(self, env, genome=None, coords=None):
     	self.id=str(uuid.uuid4()).split('-')[4]
+    	self.species="critter"
+    	self.alive=True
     	self.env=env
     	self.inc = 0.1
     	self.stop_delta=0.01
@@ -25,6 +27,7 @@ class Agent(object):
     	#### TODO :: IF BORN FROM PARENTS, INITIALIZE TO PARENTS LOCATION
     	self.x = randint(0,env.dim-1)
     	self.y = randint(0,env.dim-1)
+    	self.env.putAgent(self.x,self.y)
     	
     	#### TODO :: ALL OF THESE INITILIZED FROM GENOME
     	self.energy = 100 ### Initial energy
@@ -58,21 +61,18 @@ class Agent(object):
         print fov
         
         self.avoid_obstacles(fov)
+        
         """
-        self.move()
-        self.eat()
-        self.fight()
-        self.mate()
-        if self.energy==0: 
-            self.die()
-        return("!")
+        Check for neighbors; if you see an agent of same species, come closer
+        Otherwise, RUN!
+        
+        If there
         """
     
     def avoid_obstacles(self,fov):
         obs=[]
         for x,row in enumerate(fov):
             for y,col in enumerate(row):
-                print col
                 if 'X' in col:
                     obs.append((x-self.vision_radius,y-self.vision_radius))
         
@@ -84,16 +84,42 @@ class Agent(object):
         new_x=int(x*ratio)
         new_y=int(y*ratio)
         
+        
+        
         return obs
+    
+    def get_neighbors(self,fov):
+        neighbors=[]
+        for x,row in enumerate(fov):
+            for y,col in enumerate(row):
+                if 'agents' in col:
+                    for a in col['agents'].values():
+                        neighbors.append((x-self.vision_radius,y-self.vision_radius,a))
+        return neighbors
+        
+    def move_toward_agent(self,agent):
+        x=(self.x+agent.x)/2
+        y=(self.y+agent.y)/2
+        self.env.moveAgent(self,x,y)
+        
+    def move_away_from_agent(self,agent):
+        x=self.x+abs(self.x-agent.x)
+        y=self.y+abs(self.y-agent.y)
+        self.env.moveAgent(self,x,y)
     
     def move(self):
         ### TODO: decide where to go
         pass
 
-    def eat(self):
+    def eat_grass(self):
         ### TODO: consume the food at the current patch    
         ### OR -- if I'm a predator -- consume my prey at the consumption rate
         pass
+    
+    def eat_critter(self,agent):
+        self.energy+=agent.energy
+        agent.die()
+        env.removeAgent(agent)
     
     def mate(self):
         ### if next to me is a member of my species (i.e. genome match > 70%)
@@ -107,7 +133,7 @@ class Agent(object):
 
     def die(self):
         ### did our energy run out? or did we just get eaten?
-        pass
+        self.alive=False
 
     def fitness(self,x):
     	#return nk.fitness(x,self.weights)
