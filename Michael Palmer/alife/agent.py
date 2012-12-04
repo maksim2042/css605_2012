@@ -103,8 +103,8 @@ class Agent(object):
         self.env.moveAgent(self,x,y)
         
     def move_away_from_agent(self,agent):
-        x=self.x+abs(self.x-agent.x)
-        y=self.y+abs(self.y-agent.y)
+        x = self.env.wrap(self.x+self.x-agent.x)
+        y = self.env.wrap(self.y+self.y-agent.y)
         self.env.moveAgent(self,x,y)
     
     def move(self):

@@ -1,7 +1,7 @@
 import random as r
-from hottie import hot
 
-@hot
+
+
 class Environment():
     
     def __init__(self,dim,max_features=5):
@@ -21,10 +21,18 @@ class Environment():
 
     def getFOV(self,x,y,radius):
         fov=[]
-        rows = self.env[self.wrap(x-radius):self.wrap(x+radius)]
-        for row in rows:
-            fov.append(row[self.wrap(y-radius):self.wrap(y+radius)])
+        x_range = set([self.wrap(i) for i in range(x - radius, x + radius +1)])
+        y_range = set([self.wrap(i) for i in range(y - radius, y + radius +1)])
+
+
+        for x in x_range:
+            row = []
+            for y in y_range:
+                row.append(self.env[x][y])
+            fov.append(row)
+
         return fov
+
     
     def putAgent(self,agent):
         if 'agents' not in self.env[agent.x][agent.y]:

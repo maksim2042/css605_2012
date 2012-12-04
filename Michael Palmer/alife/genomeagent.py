@@ -33,31 +33,7 @@ STANDARDATTRIBUTES = [
 def random_genome():
     return [ randint(1,100)   for x in STANDARDATTRIBUTES]
 
-def make_rabbit(env):
-   rabbit = [ 10,
-              16,
-               9,
-               5,
-               1,
-               1,
-               1,
-               1,
-               1,
-               2 ]
-   return GenomeAgent(env,rabbit,'rabbit')
 
-def make_wolf(env):
-    wolf = [ 10,
-             16,
-              9,
-             20,
-             20,
-              1,
-              9,
-             20,
-              2,
-              1]
-    return GenomeAgent(env,wolf,'wolf')
     
 
 class GenomeAgent(Agent):
@@ -109,7 +85,7 @@ class GenomeAgent(Agent):
         self.max_lifespan = floor(value)
 
     def setVisionRadius(self,value):
-        self.vision_radius = floor(sqrt(value))
+        self.vision_radius = int(floor(sqrt(value)))
 
     def setMovementRate(self,value):
         self.movement_rate = floor(sqrt(value))
