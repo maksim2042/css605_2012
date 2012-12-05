@@ -1,0 +1,2 @@
+
+Change the self.env.putAgent(self.x,self.y) to self.env.putAgent(self)

@@ -27,7 +27,7 @@ class Agent(object):
     	#### TODO :: IF BORN FROM PARENTS, INITIALIZE TO PARENTS LOCATION
     	self.x = randint(0,env.dim-1)
     	self.y = randint(0,env.dim-1)
-    	self.env.putAgent(self.x,self.y)
+    	self.env.putAgent(self)
     	
     	#### TODO :: ALL OF THESE INITILIZED FROM GENOME
     	self.energy = 100 ### Initial energy

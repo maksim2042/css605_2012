@@ -1,6 +1,7 @@
 from environment import Environment
 from genomeagent import *
 from math        import sqrt
+from clock       import run
 
 
 def make_rabbit(env):
@@ -51,8 +52,7 @@ def test_chase():
    wf.y = 3
    ev.putAgent(rb)
    ev.putAgent(wf)
-   rb.run()
-   print 'rb x,y:' + repr(rb.x) + ',' + repr(rb.y) + '\n'
+   return run([wf,rb])
 
 class Rabbit(GenomeAgent):
       def dist(self,x):
@@ -65,7 +65,6 @@ class Rabbit(GenomeAgent):
           predators = self.get_predators(fov)
           if predators == []: return []
           distances = [(self.dist(x[2]),x[2]) for x in predators]
-          print distances
           distances.sort()
           return [distances[0]]        
       def run(self):
@@ -73,8 +72,8 @@ class Rabbit(GenomeAgent):
           fov=self.env.getFOV(self.x,self.y,self.vision_radius)
           closest_predator = self.get_predators(fov)
           if closest_predator != []:
-             print closest_predator
-             self.move_away_from_agent(closest_predator[0][2])  
+             self.move_away_from_agent(closest_predator[0][2])
+          return (self.x,self.y)
           
 class Wolf(GenomeAgent):
       def dist(self,x):
@@ -90,9 +89,8 @@ class Wolf(GenomeAgent):
           distances.sort()
           return [distances[0]]        
       def run(self):
-          print 'wolf x,y:' + repr(self.x) + ',' + repr(self.y) + '\n'
           fov=self.env.getFOV(self.x,self.y,self.vision_radius)
           closest_prey = self.find_closest_prey(fov)
           if closest_prey != []:
-              print closest_prey
               self.move_toward_agent(closest_prey[0][1])
+          return (self.x,self.y)
