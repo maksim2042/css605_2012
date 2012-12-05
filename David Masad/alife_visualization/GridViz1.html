@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v2.js"></script>
+<body>
+	<script>
+
+	var test_environment = [
+		[{el: 0}, {el: 1}, {el: 0}],
+		[{el: 1}, {el: 2}, {el: 1}],
+		[{el: 0}, {el: 1}, {el: 0, radiation: 1}]
+	];
+
+	// Environment variables:
+	var env;
+	var env_width, env_height;
+	var radiation;
+
+
+	// Display parameters
+	var width = 1200,
+		height = 800;
+	var tile_size;
+
+	// Display variables:
+	var svg;
+	var tiles;
+	var radCircles;
+	
+
+	// Scaling helpers:
+	var elevationToColor; // Future elevation to color converter.
+
+	// Main:
+	svg = d3.select("body").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+	load_data(test_environment);
+
+
+	function load_data(env_data) {
+		
+		// Set world parameters:
+		env_width =  env_data.length;
+		env_height = env_data[0].length;
+		tile_size = Math.min(width/env_width, height/env_height);
+
+		// Construct the environment array
+		env = [];
+		radiation = [];
+
+		for (var x in env_data) {
+			for (var y in env_data[x]) {
+				env_data[x][y].x = x;
+				env_data[x][y].y = y;
+				env.push(env_data[x][y]);
+
+				if (typeof env_data[x][y].radiation !== 'undefined')
+					radiation.push(env_data[x][y]);
+			}
+		}
+
+		elevationToColor = d3.scale.linear()
+			.domain([d3.min(env, function(d) {return d.el;}), 
+				d3.max(env, function(d) {return d.el;})])
+			.range(["yellowgreen", "saddlebrown"]);
+
+		draw_environment();
+		draw_radiation();
+	}
+
+	function draw_environment() {
+		tiles = svg.selectAll("rect")
+			.data(env).enter()
+			.append("rect")
+			.attr("x", function(d) {return d.x * tile_size;})
+			.attr("y", function(d) {return d.y * tile_size;})
+			.attr("width", tile_size)
+			.attr("height", tile_size)
+			.style("fill", function(d) {return elevationToColor(d.el);});
+	}
+
+
+	function draw_radiation() {
+		var radRadius = tile_size / 8;
+		var padding = 8;
+
+		var radiationColor = d3.scale.linear()
+			.domain([d3.min(radiation, function(d) {return d.radiation;}),
+				d3.max(radiation, function(d) {return d.radiation;})])
+			.range(["papayawhip", "yellow"]);
+
+		radCircles = svg.selectAll("circle")
+			.data(radiation).enter()
+			.append("circle")
+			.attr("cx", function(d) {return d.x * tile_size + radRadius + padding;})
+			.attr("cy", function(d) {return d.y * tile_size + tile_size - radRadius - padding;})
+			.attr("r", radRadius)
+			.style("fill", function(d) {return radiationColor(d.radiation)});
+	}
+
+
+	</script>
