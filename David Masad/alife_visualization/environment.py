@@ -2,39 +2,63 @@ import random as r
 
 
 
-class Environment(object):    
+class Environment():
+    
     def __init__(self,dim,max_features=5):
         self.dim=dim
         self.feature_types = 'el,food,radiation'.split(',')  
         self.max_features = 5
         self.gradient = 0.2
+        #self.obstacles=0.1
         self.env=[[{'el':0}for x in range(self.dim)] for x in range(self.dim)]
         self.make_landscape()
-        self.agents = set()
-
-    def getVisibleAgents(self,x,y,radius):
-        if self.agents == []: return []
-        visiblecells = self.getVisibleCells(x,y,radius)
-        visibleagents = [ agt for agt in self.agents if (agt.x,agt.y) in visiblecells]
-        return visibleagents
-
-    def getVisibleCells(self,x,y,radius):
-        if x > self.dim -1 or x < 0 : return []
-        if y > self.dim -1 or x < 0 : return []
-        if radius > self.dim : return []
-        #Have to account for the square the agent is standing on
-        # and that the agent may be able to view the whole board
-        x_range = set([self.wrap(i) for i in range(x - radius, x + radius +1)])
-        y_range = set([self.wrap(i) for i in range(y - radius, y + radius +1)])
-
-        visible_cells = [ (x,y) for x in x_range for y in y_range]
-
-        return visible_cells
 
     def wrap(self,x):
         if x<0: return(self.dim+x)
         if x>self.dim-1: return(x-self.dim)
         return x
+        
+
+    def getFOV(self,x,y,radius):
+        fov=[]
+        x_range = set([self.wrap(i) for i in range(x - radius, x + radius +1)])
+        y_range = set([self.wrap(i) for i in range(y - radius, y + radius +1)])
+
+
+        for x in x_range:
+            row = []
+            for y in y_range:
+                row.append(self.env[x][y])
+            fov.append(row)
+
+        return fov
+
+    
+    def putAgent(self,agent):
+        if 'agents' not in self.env[agent.x][agent.y]:
+            self.env[agent.x][agent.y]['agents']={}
+        self.env[agent.x][agent.y]['agents'][agent.id]=agent
+        
+    def removeAgent(self,agent):
+        try:
+            self.env[agent.x][agent.y]['agents'].pop(agent.id)
+        except KeyError:
+            print "this really shouldn't happen unless Agent code is screwed up"
+        
+    def moveAgent(self,agent,to_x,to_y):
+        from_el=self.env[agent.x][agent.y]['el']
+        from_x=agent.x
+        from_y=agent.y
+        self.removeAgent(agent)
+        agent.x=to_x
+        agent.y=to_y
+        to_el=self.env[agent.x][agent.y]['el']
+        self.putAgent(agent)
+        return(abs(from_x-to_x)+abs(from_y-to_y)+abs(from_el-to_el))
+        
+
+    def make_obstacle(self,x,y):
+        self.env[x][y]['X']=1
 
     def make_feature(self,x,y,type):
         self.env[x][y][type]=r.randint(0,self.dim)
@@ -57,6 +81,10 @@ class Environment(object):
         return self.do_gradient(x,y,radius+1,rate,type)
     
     def make_landscape(self):
+        for x in range(self.dim):
+            for y in range(self.dim):
+                if r.random()<0.01: self.make_obstacle(x,y)
+        
         for t in self.feature_types:
             for x in range(self.max_features):
                 self.make_feature(r.randint(0,self.dim-1),r.randint(0,self.dim-1),t)

@@ -1,4 +1,5 @@
 from random import *
+from agent import Agent
 from math import *
 import exceptions
 import uuid
@@ -32,12 +33,14 @@ STANDARDATTRIBUTES = [
 def random_genome():
     return [ randint(1,100)   for x in STANDARDATTRIBUTES]
 
-class Agent(object):
-    def __init__(self, env, genome=random_genome(), parents=None):
+
+    
+
+class GenomeAgent(Agent):
+    def __init__(self, env, genome=random_genome(), species = 'Bug Eyed Monster',parents=None):
         self.id =str(uuid.uuid4()).split('-')[4]
         self.dim=len(genome)
         self.env=env
-        self.env.agents.add(self)
 
         self.x,self.y = self.returnBirthPlace(parents)
         self.genome   = genome
@@ -45,7 +48,10 @@ class Agent(object):
         self.setStandardGenomeAttributes(genome)
         self.setInitialEnergy(genome,parents)
         self.age = 0
-        self.isAlive = True
+        self.alive = True
+
+        self.species = species
+        
 
     def returnBirthPlace(self,parents):
 
@@ -56,6 +62,11 @@ class Agent(object):
            x = parents[0].x
            y = parents[1].y
         return x,y
+    def getFOV(self):
+        return self.env.getFOV(self.x,self.y,self.vision_radius)
+
+    def dist(self,x):
+          return sqrt(abs(self.x - x.x) + abs(self.y - x.y))
 
     def setInitialEnergy(self,genome,parents):
         energy = 0.0
@@ -66,7 +77,7 @@ class Agent(object):
            parent0ChildCost = self.energy_childbirth_delta
            parent1ChildCost = self.energy_childbirth_delta
 
-        self.energy      = parent0ChildCost * parent1ChildCost
+        self.energy      = (parent0ChildCost * parent1ChildCost)*3
 
     def setStandardGenomeAttributes(self,genome):
 
@@ -79,10 +90,10 @@ class Agent(object):
         self.max_lifespan = floor(value)
 
     def setVisionRadius(self,value):
-        self.vision_radius = floor(sqrt(value))
+        self.vision_radius = int(floor(sqrt(value)))
 
     def setMovementRate(self,value):
-        self.movement_rate = floor(sqrt(value))
+        self.movement_rate = int(floor(sqrt(value)))
 
     def setChildBirthCost(self,value):
         self.energy_childbirth_delta = floor(sqrt(value))
@@ -114,51 +125,24 @@ class Agent(object):
 
     def isSameSpecies(self,otherAgent):
 
-        if len(self.genome) != len(otherAgent.genome):
-            return False
-        else:
-            diffs = sum([ abs(otherAgent.genome[x] - self.genome[x]) for x in range(len(self.genome))])
-            if diffs < 300:
-                return True
-            else:
-                return False
+##        if len(self.genome) != len(otherAgent.genome):
+##            return False
+##        else:
+##            diffs = sum([ abs(otherAgent.genome[x] - self.genome[x]) for x in range(len(self.genome))])
+##            if diffs < 300:
+##                return True
+##            else:
+##                return False
+        if self.species == otherAgent.species: return True
+        return False
 
     def shoulddie(self):
         if self.energy<=0 or self.age> self.max_lifespan: return True
         return False
             
-    def run(self):
-        if self.isAlive:
-           self.move()
-           if self.isAlive:self.eat()
-           if self.isAlive:self.mate()
-           if self.isAlive:self.fight()
-           self.age +=1 
-           if self.shoulddie(): self.die()
+
         
-        
-    def move(self):
-        ### TODO: decide where to go
-        pass
-        
-    def eat(self):
-        ### TODO: consume the food at the current patch
-        
-        ### OR -- if I'm a predator -- consume my prey at the consumption rate
-        pass
-        
-    def mate(self):
-        ### if next to me is a member of my species (i.e. genome match > 70%)
-        ### then we should mate and make babies
-        pass
-    def fight(self):
-        ### if next to me is another animal, fight with them 
-        ### the outcome is determined by the size and energy difference 
-        pass
-    def die(self):
-        ### did our energy run out? or did we just get eaten?
-        self.env.agents.discard(self)
-        self.isAlive = False
+
 
 
 
