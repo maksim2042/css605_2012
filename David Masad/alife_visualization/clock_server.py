@@ -1,0 +1,140 @@
+# Standard library imports:
+from collections import defaultdict
+from datetime import timedelta
+import random
+# Tornado imports:
+import tornado.websocket
+import tornado.ioloop
+import tornado.web
+# Model imports:
+from animals import make_wolf, make_rabbit
+from environment import Environment
+
+
+
+PATH = "/Users/dmasad/Programming/CSS605/css605_2012/David Masad/alife_visualization/static/"
+
+
+class ALife_Model(object):
+
+    def __init__(self, environment, agent_list, max_time = 1000):
+        self.environment = environment
+        self.agent_list = agent_list
+        for agent in self.agent_list:
+            self.environment.putAgent(agent)
+
+        self.max_time = max_time
+        self.species_list = list(set([agent.species for agent in self.agent_list]))
+
+
+    def run(self):
+        trajectories = defaultdict(list)
+        for time in range(self.max_time):
+            for agent in random.sample(self.agent_list, len(self.agent_list)):
+                if agent.alive:
+                    out = agent.run()
+                    trajectories[agent.id].append(out)
+                else:
+                    self.agent_list.remove(agent)
+        return trajectories
+
+    def tick(self):
+        agent_locations = {}
+        for agent in random.sample(self.agent_list, len(self.agent_list)):
+            if agent.alive:
+                new_coords = agent.run()
+                agent_locations[agent.id] = new_coords
+        return agent_locations
+
+
+    def env_only(self):
+        '''
+        Returns the current environment only, without agents
+        for serializing and sending to the visualization.
+        '''
+        clean_env = []
+        for row in self.environment.env:
+            new_row = []
+            for cell in row:
+                new_cell = {}
+                for key, value in cell.items():
+                    if key != 'agents': new_cell[key] = value
+                new_row.append(new_cell)
+            clean_env.append(new_row)
+        return clean_env
+    
+    def agent_data(self):
+        '''
+        Get the agent data in dictionary format.
+        '''
+
+        all_agents = []
+        for agent in self.agent_list:
+            agent_dict = {}
+            agent_dict['id'] = agent.id
+            agent_dict['species'] = agent.species
+            agent_dict['x'] = agent.x
+            agent_dict['y'] = agent.y
+            all_agents.append(agent_dict)
+        return all_agents
+
+
+class ModelSocket(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print "Socket open!"
+        self.send_environment()
+        self.send_species()
+        self.send_agents()
+
+        self.ticker = tornado.ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1), self.update_model)
+
+    def on_message(self,message):
+        print message
+
+    def on_close(self):
+        print "Socket closed!"
+
+
+    def update_model(self):
+        MODEL.tick()
+        self.send_agents()
+        self.ticker = tornado.ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1), self.update_model)
+
+
+    def send_environment(self):
+        '''
+        Send the environment to the client
+        '''
+        env_data = MODEL.env_only()
+        message = {"header": "environment", "contents": env_data}
+        self.write_message(message)
+
+    def send_species(self):
+        species_list = MODEL.species_list
+        message = {"header": "species", "contents": species_list}
+        self.write_message(message)
+
+    def send_agents(self):
+        agent_list = MODEL.agent_data()
+        #print agent_list
+        message = {"header": "agent_update", "contents": agent_list}
+        self.write_message(message)
+
+
+def launch_model():
+   ev = Environment(10)
+   wf = make_wolf(ev)
+   rb = make_rabbit(ev)
+   rb.x = 1
+   rb.y = 1
+   wf.x = 3
+   wf.y = 3
+   model = ALife_Model(ev, [wf, rb])
+   return model
+
+app = tornado.web.Application([(r"/static/(.*)", tornado.web.StaticFileHandler, {"path": PATH}),
+    ("/websocket", ModelSocket) ])
+if __name__ == "__main__":
+    MODEL = launch_model()
+    app.listen(8888)
+    tornado.ioloop.IOLoop.instance().start()

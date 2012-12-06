@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="https://raw.github.com/mbostock/d3/master/lib/colorbrewer/colorbrewer.js"></script>
+
+<body>
+
+	<script>
+
+	var test_environment = [
+		[{el: 0}, {el: 1}, {el: 0}],
+		[{el: 1}, {el: 2}, {el: 1}],
+		[{el: 0}, {el: 1}, {el: 0, radiation: 1, 
+						agents: {1: {species: 'predator', x: 2, y:2}}}]
+	];
+
+	var test_species = ["predator", "prey"]
+	
+
+
+
+	// Model data variables:
+	var env;
+	var env_width, env_height;
+	var agents; 
+	var radiation;
+
+
+	// Display parameters
+	var width = 1200,
+		height = 800;
+	var tile_size;
+
+	// Display variables:
+	var svg;
+	var tiles;
+	var radCircles;
+	var agentShapes;
+	
+
+	// Scales and ranges:
+	var elevationToColor; 
+	var speciesColors;
+
+	// Main:
+	svg = d3.select("body").append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.on("click", on_Click); // For testing purposes only, move agents randomly on click
+	load_species(test_species);
+	load_env_data(test_environment);
+
+	// FUNCTIONS:
+
+	function load_species(species_list) {
+		var speciesCount = Math.max(species_list.length, 3);
+		speciesColors = d3.scale.ordinal()
+			.domain(species_list)
+			.range(colorbrewer.Spectral[speciesCount]);
+	}
+
+
+	function load_env_data(env_data) {
+		
+		// Set world parameters:
+		env_width =  env_data.length;
+		env_height = env_data[0].length;
+		tile_size = Math.min(width/env_width, height/env_height);
+
+		// Construct the environment array
+		env = [];
+		radiation = [];
+		agents = []
+
+		for (var x in env_data) {
+			for (var y in env_data[x]) {
+				env_data[x][y].x = x;
+				env_data[x][y].y = y;
+				env.push(env_data[x][y]);
+
+				if (typeof env_data[x][y].radiation !== 'undefined')
+					radiation.push(env_data[x][y]);
+				if (typeof env_data[x][y].agents !== 'undefined')
+					for (var i in env_data[x][y].agents)
+						agents.push(env_data[x][y].agents[i]);
+
+			}
+		}
+
+		elevationToColor = d3.scale.linear()
+			.domain([d3.min(env, function(d) {return d.el;}), 
+				d3.max(env, function(d) {return d.el;})])
+			.range(["yellowgreen", "saddlebrown"]);
+
+		draw_environment();
+		draw_radiation();
+		draw_agents();
+	}
+
+	function draw_environment() {
+		tiles = svg.selectAll("rect")
+			.data(env).enter()
+			.append("rect")
+			.attr("x", function(d) {return d.x * tile_size;})
+			.attr("y", function(d) {return d.y * tile_size;})
+			.attr("width", tile_size)
+			.attr("height", tile_size)
+			.style("fill", function(d) {return elevationToColor(d.el);});
+	}
+
+	function draw_agents() {
+		if( typeof agentShapes === 'undefined') 
+			agentShapes = svg.selectAll(".agents")
+				.data(agents).enter()
+				.append("circle");
+
+		agentShapes = agentShapes//.transition().duration(500).ease("linear")
+			.attr("cx", function(d) {return d.x * tile_size + tile_size/2;})
+				.attr("cy", function(d) {return d.y * tile_size + tile_size/2;})
+				.attr("r", tile_size/8)
+				.style("fill", function(d) {return speciesColors(d.species);});
+
+	}
+
+
+	function draw_radiation() {
+		var radRadius = tile_size / 8;
+		var padding = 8;
+
+		var radiationColor = d3.scale.linear()
+			.domain([d3.min(radiation, function(d) {return d.radiation;}),
+				d3.max(radiation, function(d) {return d.radiation;})])
+			.range(["papayawhip", "yellow"]);
+
+		radCircles = svg.selectAll(".radiation")
+			.data(radiation).enter()
+			.append("circle")
+			.attr("cx", function(d) {return d.x * tile_size + radRadius + padding;})
+			.attr("cy", function(d) {return d.y * tile_size + tile_size - radRadius - padding;})
+			.attr("r", radRadius)
+			.style("fill", function(d) {return radiationColor(d.radiation)});
+	}
+
+
+	// Testing only: move agents randomly on click:
+	function on_Click() {
+		agents.forEach(function(d) {
+			d.x = Math.round(Math.random() * (env_width-1));
+			d.y = Math.round(Math.random() * (env_height-1));
+		});
+
+		draw_agents();
+	}
+
+
+
+
+	</script>
