@@ -1,0 +1,22 @@
+ As Max defined the code:  
+
+ def move_away_from_agent(self,agent):
+        x=self.x+abs(self.x-agent.x)
+        y=self.y+abs(self.y-agent.y)
+        self.env.moveAgent(self,x,y)
+
+If I have a rabbit at 1,1 and a wolf at 3,3 and my rabbit tries to move away from the wolf-
+
+ X = 1 + abs(1 - 3) = 1 + 2
+ Y = 1 + abs(1 - 3) = 1 + 2
+ X = 3
+ Y = 3
+
+My rabbit charges at the wolf.....
+
+Suggested fix:
+
+x = self.env.wrap(self.x+self.x-agent.x)
+y = self.env.wrap(self.y+self.y-agent.y)
+self.env.moveAgent(self,x,y)
+
