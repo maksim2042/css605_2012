@@ -62,6 +62,11 @@ class GenomeAgent(Agent):
            x = parents[0].x
            y = parents[1].y
         return x,y
+    def getFOV(self):
+        return self.env.getFOV(self.x,self.y,self.vision_radius)
+
+    def dist(self,x):
+          return sqrt(abs(self.x - x.x) + abs(self.y - x.y))
 
     def setInitialEnergy(self,genome,parents):
         energy = 0.0
@@ -88,7 +93,7 @@ class GenomeAgent(Agent):
         self.vision_radius = int(floor(sqrt(value)))
 
     def setMovementRate(self,value):
-        self.movement_rate = floor(sqrt(value))
+        self.movement_rate = int(floor(sqrt(value)))
 
     def setChildBirthCost(self,value):
         self.energy_childbirth_delta = floor(sqrt(value))

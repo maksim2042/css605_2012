@@ -55,8 +55,6 @@ def test_chase():
    return run([wf,rb])
 
 class Rabbit(GenomeAgent):
-      def dist(self,x):
-          return sqrt(abs(self.x - x.x) + abs(self.y - x.y))
       def get_predators(self,fov):
           neighbors = self.get_neighbors(fov)
           predators = [x for x in neighbors  if x[2].eats_meat == True]
@@ -69,15 +67,13 @@ class Rabbit(GenomeAgent):
           return [distances[0]]        
       def run(self):
 
-          fov=self.env.getFOV(self.x,self.y,self.vision_radius)
+          fov=self.getFOV()
           closest_predator = self.get_predators(fov)
           if closest_predator != []:
              self.move_away_from_agent(closest_predator[0][2])
           return (self.x,self.y)
           
 class Wolf(GenomeAgent):
-      def dist(self,x):
-          return sqrt(abs(self.x - x.x) + abs(self.y - x.y))
       def get_prey(self,fov):
           neighbors = self.get_neighbors(fov)
           prey = [x for x in neighbors if x[2].eats_plants == True]
@@ -89,7 +85,7 @@ class Wolf(GenomeAgent):
           distances.sort()
           return [distances[0]]        
       def run(self):
-          fov=self.env.getFOV(self.x,self.y,self.vision_radius)
+          fov=self.getFOV()
           closest_prey = self.find_closest_prey(fov)
           if closest_prey != []:
               self.move_toward_agent(closest_prey[0][1])
