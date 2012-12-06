@@ -25,6 +25,9 @@ class ALife_Model(object):
 
         self.max_time = max_time
         self.species_list = list(set([agent.species for agent in self.agent_list]))
+        self.time = 0
+
+        self.latest_state = None
 
 
     def run(self):
@@ -44,7 +47,8 @@ class ALife_Model(object):
             if agent.alive:
                 new_coords = agent.run()
                 agent_locations[agent.id] = new_coords
-        return agent_locations
+        self.latest_state = self.agent_data()
+        self.time += 1
 
 
     def env_only(self):
@@ -92,11 +96,11 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
         print message
 
     def on_close(self):
+        tornado.ioloop.IOLoop.instance().remove_timeout(self.ticker)
         print "Socket closed!"
 
 
     def update_model(self):
-        MODEL.tick()
         self.send_agents()
         self.ticker = tornado.ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1), self.update_model)
 
@@ -115,8 +119,7 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
         self.write_message(message)
 
     def send_agents(self):
-        agent_list = MODEL.agent_data()
-        #print agent_list
+        agent_list = MODEL.latest_state
         message = {"header": "agent_update", "contents": agent_list}
         self.write_message(message)
 
@@ -137,4 +140,6 @@ app = tornado.web.Application([(r"/static/(.*)", tornado.web.StaticFileHandler, 
 if __name__ == "__main__":
     MODEL = launch_model()
     app.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
+    instance = tornado.ioloop.IOLoop.instance()
+    tornado.ioloop.PeriodicCallback(MODEL.tick, 500).start()
+    instance.start()
