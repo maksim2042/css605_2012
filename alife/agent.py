@@ -27,7 +27,7 @@ class Agent(object):
     	#### TODO :: IF BORN FROM PARENTS, INITIALIZE TO PARENTS LOCATION
     	self.x = randint(0,env.dim-1)
     	self.y = randint(0,env.dim-1)
-    	self.env.putAgent(self.x,self.y)
+    	self.env.putAgent(self)
     	
     	#### TODO :: ALL OF THESE INITILIZED FROM GENOME
     	self.energy = 100 ### Initial energy
@@ -84,11 +84,14 @@ class Agent(object):
         new_x=int(x*ratio)
         new_y=int(y*ratio)
         
-        
-        
         return obs
     
-    def get_neighbors(self,fov):
+    def getFOV(self):
+        fov=self.env.getFOV(self.x,self.y,self.vision_radius)
+        return fov
+    
+    def get_neighbors(self,fov=None):
+        if fov==None: fov=self.getFOV()
         neighbors=[]
         for x,row in enumerate(fov):
             for y,col in enumerate(row):
@@ -103,8 +106,8 @@ class Agent(object):
         self.env.moveAgent(self,x,y)
         
     def move_away_from_agent(self,agent):
-        x=self.x+abs(self.x-agent.x)
-        y=self.y+abs(self.y-agent.y)
+        x = self.env.wrap(self.x+self.x-agent.x)
+        y = self.env.wrap(self.y+self.y-agent.y)
         self.env.moveAgent(self,x,y)
     
     def move(self):
