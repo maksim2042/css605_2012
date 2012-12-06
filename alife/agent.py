@@ -77,9 +77,10 @@ class Agent(object):
                     obs.append((x-self.vision_radius,y-self.vision_radius))
         
         x=sum([x[0] for x in obs])/2.0
-        y=sum([x[y] for x in obs])/2.0
+        y=sum([x[1] for x in obs])/2.0
         
         eu_dist=math.sqrt(x**2 + y**2)
+        if eu_dist==0: eu_dist=1
         ratio=self.movement_rate/eu_dist
         new_x=int(x*ratio)
         new_y=int(y*ratio)
