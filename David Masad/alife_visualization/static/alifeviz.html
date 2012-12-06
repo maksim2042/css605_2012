@@ -13,8 +13,8 @@ var env_width, env_height;
 var agents; 
 var radiation;
 // Display parameters
-var width = 1200,
-	height = 800;
+var width = 2400,
+	height = 1600;
 var tile_size;
 // Display variables:
 var svg;
@@ -120,7 +120,7 @@ function draw_agents() {
 			.attr("cy", function(d) {return d.y * tile_size + tile_size/2;})
 			.attr("r", tile_size/8)
 			.style("fill", function(d) {return speciesColors(d.species);});
-	console.log(agentShapes.data());
+	// console.log(agentShapes.data()); For testing purposes only
 }
 
 

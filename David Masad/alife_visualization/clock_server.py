@@ -125,7 +125,7 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
 
 
 def launch_model():
-   ev = Environment(10)
+   ev = Environment(128)
    wf = make_wolf(ev)
    rb = make_rabbit(ev)
    rb.x = 1
