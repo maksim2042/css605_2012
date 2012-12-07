@@ -14,6 +14,7 @@ STARTSIZE  = 6
 GROWTHRATE = 7
 EATSMEAT   = 8
 EATSPLANTS = 9
+CONSUMPTIONRATE = 10
 
 
 STANDARDATTRIBUTES = [
@@ -26,7 +27,8 @@ STANDARDATTRIBUTES = [
                              ('setStartSize',STARTSIZE),
                              ('setGrowthRate',GROWTHRATE),
                              ('setEatsMeat',EATSMEAT),
-                             ('setEatsPlants',EATSPLANTS)
+                             ('setEatsPlants',EATSPLANTS),
+                             ('setConsumptionRate',CONSUMPTIONRATE)
                      ]
 
 
@@ -86,6 +88,9 @@ class GenomeAgent(Agent):
             position = attribute[1]
             getattr(self,funcName)(genome[position])
 
+    def setConsumptionRate(self,value):
+        self.consumption_rate = value / 20
+
     def setMaxLife(self,value):
         self.max_lifespan = floor(value)
 
@@ -108,7 +113,7 @@ class GenomeAgent(Agent):
         self.size = floor(sqrt(value))
 
     def setGrowthRate(self,value):
-        self.growth_rate = value / 100.0
+        self.growth_rate = value / 1000.0
 
     def setEatsMeat(self,value):
         if value % 2 == 0:

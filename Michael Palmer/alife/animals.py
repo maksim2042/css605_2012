@@ -14,7 +14,8 @@ def make_rabbit(env):
                1,
                1,
                1,
-               2 ]
+               2,
+              10]
    return Rabbit(env,rabbit,'rabbit')
 
 def make_wolf(env):
@@ -27,7 +28,8 @@ def make_wolf(env):
               9,
              20,
               2,
-              1]
+              1,
+             20]
     return Wolf(env,wolf,'wolf')
 
 def test_rabbit():
