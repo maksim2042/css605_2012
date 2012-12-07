@@ -15,7 +15,7 @@ dim=10
 e=env.Environment(dim)
 ##agents = [a.Agent(e) for i in range(numagents)]
 
-def run():
+def run(e):
 	trajectories = defaultdict(list)
 	for time in range(max_time):
 	    agents=e.agents.values()
