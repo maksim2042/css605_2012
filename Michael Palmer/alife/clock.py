@@ -7,13 +7,13 @@ import numpy as num
 import environment as env
 
 
-numagents=100
-max_time=1000
-dim=256
+numagents=10
+max_time=8
+dim=10
 
 #weights=nk.make_weight_matrix(0.1, dim)
 e=env.Environment(dim)
-agents = [a.Agent(e) for i in range(numagents)]
+##agents = [a.Agent(e) for i in range(numagents)]
 
 def run():
 	trajectories = defaultdict(list)

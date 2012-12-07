@@ -53,6 +53,8 @@ class GenomeAgent(Agent):
         self.alive = True
 
         self.species = species
+
+        self.growth_energy_threshold=20
         
 
     def returnBirthPlace(self,parents):

@@ -1,7 +1,5 @@
 import random as r
-from hottie import hot
 
-@hot
 class Environment():
     
     def __init__(self,dim,max_features=5):
@@ -25,7 +23,7 @@ class Environment():
         x_range = [self.wrap(i) for i in range(x - radius, x + radius +1)]
         y_range = [self.wrap(i) for i in range(y - radius, y + radius +1)]
         
-        print x_range, y_range
+
 
         for x in x_range:
             row = []
