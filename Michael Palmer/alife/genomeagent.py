@@ -46,7 +46,8 @@ class GenomeAgent(Agent):
 
         self.x,self.y = self.returnBirthPlace(parents)
         self.genome   = genome
-
+        self.food_source = ''
+        
         self.setStandardGenomeAttributes(genome)
         self.setInitialEnergy(genome,parents)
         self.age = 0
@@ -55,6 +56,8 @@ class GenomeAgent(Agent):
         self.species = species
 
         self.growth_energy_threshold=20
+
+
         
 
     def returnBirthPlace(self,parents):
@@ -120,12 +123,17 @@ class GenomeAgent(Agent):
     def setEatsMeat(self,value):
         if value % 2 == 0:
             self.eats_meat = True
+            self.food_source = 'prey'
         else:
             self.eats_meat = False
 
     def setEatsPlants(self,value):
         if value % 2 == 0:
             self.eats_plants = True
+            if self.food_source == 'prey':
+                self.food_source = 'all'
+            else:
+                self.food_source = 'env'
         else:
             self.eats_plants = False
         
@@ -148,7 +156,7 @@ class GenomeAgent(Agent):
         return False
     def get_prey(self,fov):
         neighbors = self.get_neighbors(fov)
-        prey = [x for x in neighbors if x[2].eats_plants == True]
+        prey = [x for x in neighbors if x[2].food_source == 'env']
         return prey
     def find_closest_prey(self,fov):
         return self.find_closest(fov,self.get_prey)
@@ -160,7 +168,7 @@ class GenomeAgent(Agent):
         return x  , y      
     def get_predators(self,fov):
         neighbors = self.get_neighbors(fov)
-        predators = [x for x in neighbors  if x[2].eats_meat == True]
+        predators = [x for x in neighbors  if (x[2].food_source == 'prey' or x[2].food_source=='all')]
         return predators
     def visible_predators(self):
         if len(self.get_predators(self.getFOV())) > 0: return True
