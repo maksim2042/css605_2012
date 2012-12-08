@@ -81,7 +81,7 @@ class GenomeAgent(Agent):
            parent0ChildCost = self.energy_childbirth_delta
            parent1ChildCost = self.energy_childbirth_delta
 
-        self.energy      = (parent0ChildCost * parent1ChildCost)*3
+        self.energy      = (parent0ChildCost * parent1ChildCost)*20
 
     def setStandardGenomeAttributes(self,genome):
 
@@ -109,10 +109,10 @@ class GenomeAgent(Agent):
         self.energy_mating_delta = floor(sqrt(value))
 
     def setMoveCost(self,value):
-        self.energy_move_delta = floor(sqrt(value))
+        self.energy_move_delta = sqrt(value)/2
 
     def setStartSize(self,value):
-        self.size = floor(sqrt(value))
+        self.size = sqrt(value)/2.0
 
     def setGrowthRate(self,value):
         self.growth_rate = value / 1000.0

@@ -64,12 +64,18 @@ class Rabbit(GenomeAgent):
               closest = self.find_closest_predator(self.getFOV())
               if closest != []:
                  x_move,y_move = self.get_directionaway(closest[0][1],closest[0][2])
-                 self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
+                 self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
                  movement -= 1
          return movement
       def run(self):
           movement = self.movement_rate
+          
           if self.visible_predators(): movement = self.avoid_predators(movement)
+
+          if self.shoulddie() :
+             self.die()
+             return (self.x,self.y)
+
           print 'rabbit %s %s \n'%(self.x,self.y)
           return (self.x,self.y)
 
@@ -83,11 +89,17 @@ class Wolf(GenomeAgent):
             closest = self.find_closest_prey(self.getFOV())
             if closest != []:
                  x_move,y_move = self.get_directiontoward(closest[0][1],closest[0][2])
-                 self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
+                 self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
                  movement -= 1
          return movement
       def run(self):
           movement = self.movement_rate
+          
           if self.visible_prey():movement = self.chase_prey(movement)
+
+          if self.shoulddie() :
+             self.die()
+             return (self.x,self.y)
+          
           print 'wolf %s %s \n'%(self.x,self.y)
           return (self.x,self.y)
