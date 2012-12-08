@@ -69,8 +69,8 @@ class GenomeAgent(Agent):
     def getFOV(self):
         return self.env.getFOV(self.x,self.y,self.vision_radius)
 
-    def dist(self,x):
-          return sqrt(abs(self.x - x.x) + abs(self.y - x.y))
+    def dist(self,coords):
+          return sqrt(abs(self.x - coords[0]) + abs(self.y - coords[1]))
 
     def setInitialEnergy(self,genome,parents):
         energy = 0.0
@@ -170,10 +170,16 @@ class GenomeAgent(Agent):
         return False
     def find_closest_predator(self,fov):
         return self.find_closest(fov,self.get_predators)
+    def find_closest_food(self,fov):
+        cells = self.get_food_cells(fov)
+        if cells == []: return []
+        distances = [ (self.dist((x[0],x[1])),x[0],x[1],x[2]) for x in cells]
+        distances.sort()
+        return [distances[0]]
     def find_closest(self,fov,func):
         animals = func(fov)
         if animals == []: return []
-        distances = [(self.dist(x[2]),x[0],x[1],x[2]) for x in animals]
+        distances = [(self.dist((x[2].x,x[2].y)),x[0],x[1],x[2]) for x in animals]
         distances.sort()
         return [distances[0]]        
     def get_directionaway(self,x,y):

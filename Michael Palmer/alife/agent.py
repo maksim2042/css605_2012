@@ -140,8 +140,7 @@ class Agent(object):
         for x,row in enumerate(fov):
             for y,col in enumerate(row):
                 if 'food' in col:
-                    for a in col['food'].values():
-                        neighbors.append((x-self.vision_radius,y-self.vision_radius,a))
+                    neighbors.append((x-self.vision_radius,y-self.vision_radius,col['food']))
         return neighbors
  
  

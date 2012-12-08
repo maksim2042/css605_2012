@@ -44,6 +44,15 @@ def test_wolf():
    ev.putAgent(wf)
    wf.run()
 
+def test_moveforfood():
+   ev = Environment(10)
+   rb = make_rabbit(ev)
+   rb.x = 1
+   rb.y = 1   
+   ev.putAgent(rb)
+   return run(ev)
+
+   
 def test_chase():
    ev = Environment(10)
    wf = make_wolf(ev)
@@ -57,6 +66,9 @@ def test_chase():
    return run(ev)
 
 class Rabbit(GenomeAgent):
+      def no_food(self):
+        if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0: return False
+        return True
       def eat_grass(self):
         if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0:
            food_consumed = self.consumption_rate
@@ -76,6 +88,15 @@ class Rabbit(GenomeAgent):
                  self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
                  movement -= 1
          return movement
+      def move_towards_food(self,movement):
+         while (movement > 0 and self.no_food()==True):
+            closest = self.find_closest_food(self.getFOV())
+            if closest != []:
+               x_move, y_move = self.get_directiontoward(closest[0][1],closest[0][2])
+               self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+               movement -= 1
+         return movement
+      
       def run(self):
           movement = self.movement_rate
 
@@ -85,8 +106,13 @@ class Rabbit(GenomeAgent):
           
           if self.visible_predators(): movement = self.avoid_predators(movement)
 
-          self.eat_grass()
+          if self.shoulddie() :
+             self.die()
+             return (self.x,self.y)         
 
+          if self.no_food() and movement > 0: movement = self.move_towards_food(movement)
+
+          self.eat_grass()
 
           if self.shoulddie() :
              self.die()
