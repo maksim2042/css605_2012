@@ -57,58 +57,37 @@ def test_chase():
    return run(ev)
 
 class Rabbit(GenomeAgent):
-      def get_predators(self,fov):
-          neighbors = self.get_neighbors(fov)
-          predators = [x for x in neighbors  if x[2].eats_meat == True]
-          return predators
-      def find_closest_predator(self,fov):
-          predators = self.get_predators(fov)
-          if predators == []: return []
-          distances = [(self.dist(x[2]),x[0],x[1],x[2]) for x in predators]
-          distances.sort()
-          return [distances[0]]
-      def get_directionaway(self,x,y):
-          if abs(x) > 1 : x = x / abs(x)
-          if abs(y) > 1 : y = y / abs(y)
-          if x == 0 : x = 1
-          if y == 0 : y = 1
-          return x *-1 , y *-1
+      def avoid_predators(self,movement):
+         # Allows the rabbit to react to a new, closer predator
+         # Does not stop the rabbit from running back towards a previous predator
+         while (self.visible_predators() and movement > 0):
+              closest = self.find_closest_predator(self.getFOV())
+              if closest != []:
+                 x_move,y_move = self.get_directionaway(closest[0][1],closest[0][2])
+                 self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
+                 movement -= 1
+         return movement
       def run(self):
-          fov=self.getFOV()
-          closest_predator = self.find_closest_predator(fov)
-          if closest_predator != []:
-             print closest_predator[0]
-             x_move,y_move = self.get_directionaway(closest_predator[0][1],closest_predator[0][2])
-             print 'rabbitmove' + repr(x_move) + ',' + repr(y_move) + '\n'
-             self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
-             print 'rabit ' + repr(self.x) + ',' + repr(self.y) + '\n'
+          movement = self.movement_rate
+          if self.visible_predators(): movement = self.avoid_predators(movement)
+          print 'rabbit %s %s \n'%(self.x,self.y)
           return (self.x,self.y)
 
           
 class Wolf(GenomeAgent):
-      def get_prey(self,fov):
-          neighbors = self.get_neighbors(fov)
-          prey = [x for x in neighbors if x[2].eats_plants == True]
-          return prey
-      def find_closest_prey(self,fov):
-          prey = self.get_prey(fov)
-          if prey == []: return []
-          distances = [(self.dist(x[2]),x[0],x[1],x[2]) for x in prey]
-          distances.sort()
-          return [distances[0]]
-      def get_directiontoward(self,x,y):
-          if abs(x) > 1 : x = x / abs(x)
-          if abs(y) > 1 : y = y / abs(y)
-          if x == 0 : x = 1
-          if y == 0 : y = 1
-          return x  , y  
+      def chase_prey(self,movement):
+         #
+         # If a prey gets ahead of the wolf through activation order a new prey may actually be closer
+         #
+         while (self.visible_prey() and movement > 0):
+            closest = self.find_closest_prey(self.getFOV())
+            if closest != []:
+                 x_move,y_move = self.get_directiontoward(closest[0][1],closest[0][2])
+                 self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
+                 movement -= 1
+         return movement
       def run(self):
-          fov=self.getFOV()
-          closest_prey = self.find_closest_prey(fov)
-          if closest_prey != []:
-              print closest_prey[0]
-              x_move,y_move = self.get_directiontoward(closest_prey[0][1],closest_prey[0][2])
-              print 'wolfmove' + repr(x_move) + ',' + repr(y_move) + '\n'
-              self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move))
-              print 'wolf ' + repr(self.x) + ',' + repr(self.y) + '\n'
+          movement = self.movement_rate
+          if self.visible_prey():movement = self.chase_prey(movement)
+          print 'wolf %s %s \n'%(self.x,self.y)
           return (self.x,self.y)

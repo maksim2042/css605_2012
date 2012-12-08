@@ -146,7 +146,39 @@ class GenomeAgent(Agent):
     def shoulddie(self):
         if self.energy<=0 or self.age> self.max_lifespan: return True
         return False
-            
+    def get_prey(self,fov):
+        neighbors = self.get_neighbors(fov)
+        prey = [x for x in neighbors if x[2].eats_plants == True]
+        return prey
+    def find_closest_prey(self,fov):
+        return self.find_closest(fov,self.get_prey)
+    def get_directiontoward(self,x,y):
+        if x == 0 : x = 1
+        if y == 0 : y = 1         
+        if abs(x) > 1 : x = x / abs(x)
+        if abs(y) > 1 : y = y / abs(y)
+        return x  , y      
+    def get_predators(self,fov):
+        neighbors = self.get_neighbors(fov)
+        predators = [x for x in neighbors  if x[2].eats_meat == True]
+        return predators
+    def visible_predators(self):
+        if len(self.get_predators(self.getFOV())) > 0: return True
+        return False
+    def visible_prey(self):
+        if len(self.get_prey(self.getFOV()))>0 : return True
+        return False
+    def find_closest_predator(self,fov):
+        return self.find_closest(fov,self.get_predators)
+    def find_closest(self,fov,func):
+        animals = func(fov)
+        if animals == []: return []
+        distances = [(self.dist(x[2]),x[0],x[1],x[2]) for x in animals]
+        distances.sort()
+        return [distances[0]]        
+    def get_directionaway(self,x,y):
+        x,y = self.get_directiontoward(x,y)
+        return x *-1 , y *-1            
 
         
 
