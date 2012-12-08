@@ -57,6 +57,15 @@ def test_chase():
    return run(ev)
 
 class Rabbit(GenomeAgent):
+      def eat_grass(self):
+        if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0:
+           food_consumed = self.consumption_rate
+           if self.env.env[self.x][self.y]['food'] < self.consumption_rate:
+              food_consumed = self.env.env[self.x][self.y]['food']
+           self.energy += food_consumed 
+           self.env.env[self.x][self.y]['food']-=food_consumed
+            
+        return self.env.env[self.x][self.y]['food']   
       def avoid_predators(self,movement):
          # Allows the rabbit to react to a new, closer predator
          # Does not stop the rabbit from running back towards a previous predator
@@ -69,14 +78,24 @@ class Rabbit(GenomeAgent):
          return movement
       def run(self):
           movement = self.movement_rate
+
+          self.age += 0.1
+
+          self.eat_grass()
           
           if self.visible_predators(): movement = self.avoid_predators(movement)
+
+          self.eat_grass()
+
 
           if self.shoulddie() :
              self.die()
              return (self.x,self.y)
 
-          print 'rabbit %s %s \n'%(self.x,self.y)
+          
+         
+
+          print 'rabbit %s %s %s \n'%(self.x,self.y,self.energy)
           return (self.x,self.y)
 
           
@@ -94,6 +113,8 @@ class Wolf(GenomeAgent):
          return movement
       def run(self):
           movement = self.movement_rate
+
+          self.age += 0.1
           
           if self.visible_prey():movement = self.chase_prey(movement)
 

@@ -91,7 +91,7 @@ class GenomeAgent(Agent):
             getattr(self,funcName)(genome[position])
 
     def setConsumptionRate(self,value):
-        self.consumption_rate = value / 20
+        self.consumption_rate = value / 10.0
 
     def setMaxLife(self,value):
         self.max_lifespan = floor(value)
