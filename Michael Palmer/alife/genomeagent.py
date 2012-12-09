@@ -44,6 +44,7 @@ class GenomeAgent(Agent):
         self.dim=len(genome)
         self.env=env
 
+        self.parents = parents
         self.x,self.y = self.returnBirthPlace(parents)
         self.genome   = genome
         self.food_source = ''
@@ -158,6 +159,12 @@ class GenomeAgent(Agent):
         neighbors = self.get_neighbors(fov)
         prey = [x for x in neighbors if x[2].food_source == 'env']
         return prey
+    def get_same_species(self,fov):
+        neighbors = self.get_neighbors(fov)
+        same = [x for x in neighbors if self.isSameSpecies(x[2]) and x[2].id != self.id]
+        return same
+    def find_closest_same_species(self,fov):
+        return self.find_closest(fov,self.get_same_species)
     def find_closest_prey(self,fov):
         return self.find_closest(fov,self.get_prey)
     def get_directiontoward(self,x,y):
@@ -175,6 +182,9 @@ class GenomeAgent(Agent):
         return False
     def visible_prey(self):
         if len(self.get_prey(self.getFOV()))>0 : return True
+        return False
+    def visible_same_species(self):
+        if len(self.get_same_species(self.getFOV()))>0: return True
         return False
     def find_closest_predator(self,fov):
         return self.find_closest(fov,self.get_predators)
