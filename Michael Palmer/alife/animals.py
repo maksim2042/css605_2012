@@ -7,8 +7,8 @@ from clock       import run
 RABBIT = [ 10,
             9,
             9,
-            5,
-            1,
+            10,
+            4,
             1,
             1,
             1,
@@ -77,8 +77,8 @@ def test_movetosame():
    return run(ev)
 
 class Rabbit(GenomeAgent):
-      def __init__(self,env,genome=RABBIT,species = 'rabbit'):
-        super(Rabbit,self).__init__(env,genome,species)
+      def __init__(self,env,genome=RABBIT,species = 'rabbit',parents=None):
+        super(Rabbit,self).__init__(env,genome,species,parents)
       def no_food(self):
         if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0: return False
         return True
@@ -120,16 +120,18 @@ class Rabbit(GenomeAgent):
          return movement
 
       def mate(self):
-        print 'in mate'
         miniFOV=self.env.getFOV(self.x,self.y,1)
         neighbors = self.get_neighbors(fov=miniFOV)
         for n in neighbors:
             if n[2].species == self.species and n[2].id !=self.id:
-                print 'attempting to mate'
-                self.mate_with_agent(n[2])
-                return
+               #prevent incest
+               print n[2].parents
+               if (n[2].parents != None and self in n[2].parents) or (self.parents!=None and n[2] in self.parents):
+                  continue
+               self.mate_with_agent(n[2])
+               return
       def mate_with_agent(self,agent):
-        baby=self.__class__(self.env,self.genome,[self,agent])
+        baby=self.__class__(self.env,self.genome,self.species,[self,agent])
         self.env.putAgent(baby)
         self.expend_energy(self.energy_mating_delta+self.energy_childbirth_delta)
       
@@ -141,7 +143,6 @@ class Rabbit(GenomeAgent):
           self.eat_grass()
           
           if self.visible_predators():
-             print 'avoid predators'
              movement = self.avoid_predators(movement)
 
           if self.shoulddie() :
@@ -149,7 +150,6 @@ class Rabbit(GenomeAgent):
              return (self.x,self.y)         
 
           if self.no_food() and movement > 0:
-             print 'move to food'
              movement = self.move_towards_food(movement)
 
           self.eat_grass()
@@ -159,7 +159,6 @@ class Rabbit(GenomeAgent):
              return (self.x,self.y)          
 
           if self.visible_same_species() and movement >0 :
-             print 'move to same'
              movement = self.move_to_mate(movement)
              self.mate()
 
