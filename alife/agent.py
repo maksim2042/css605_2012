@@ -203,7 +203,8 @@ class Agent(object):
         ### perform genome crossover
         ##### MUST PREVENT INCEST!
         ### make some babies
-        baby=self.__class__(self.env,x=self.x,y=self.y)       
+        baby=self.__class__(self.env,x=self.x,y=self.y)
+        self.env.putAgent(baby)
         self.expend_energy(self.energy_mating_delta+self.energy_childbirth_delta)
 
     def fight(self):
