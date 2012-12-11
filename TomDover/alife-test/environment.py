@@ -8,8 +8,9 @@ class Environment():
         self.max_features = 5
         self.gradient = 0.2
         #self.obstacles=0.1
-        self.env=[[{'el':0}for x in range(self.dim)] for x in range(self.dim)]
+        self.env=[[{'el':0, 'food':r.randint(0,100)}for x in range(self.dim)] for x in range(self.dim)]
         self.make_landscape()
+        self.agents={}
 
     def wrap(self,x):
         if x<0: return(self.dim+x)
@@ -19,19 +20,29 @@ class Environment():
 
     def getFOV(self,x,y,radius):
         fov=[]
-        rows = self.env[self.wrap(x-radius):self.wrap(x+radius)]
-        for row in rows:
-            fov.append(row[self.wrap(y-radius):self.wrap(y+radius)])
+        x_range = [self.wrap(i) for i in range(x - radius, x + radius +1)]
+        y_range = [self.wrap(i) for i in range(y - radius, y + radius +1)]
+        
+
+
+        for x in x_range:
+            row = []
+            for y in y_range:
+                row.append(self.env[x][y])
+            fov.append(row)
+
         return fov
     
     def putAgent(self,agent):
         if 'agents' not in self.env[agent.x][agent.y]:
             self.env[agent.x][agent.y]['agents']={}
         self.env[agent.x][agent.y]['agents'][agent.id]=agent
+        self.agents[agent.id]=agent
         
     def removeAgent(self,agent):
         try:
             self.env[agent.x][agent.y]['agents'].pop(agent.id)
+            self.agents.pop(agent.id)
         except KeyError:
             print "this really shouldn't happen unless Agent code is screwed up"
         

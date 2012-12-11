@@ -1,11 +1,15 @@
-import agent as a
-import random as r
-###import environment as env
-import math as m
+from random import *
+from math import *
+import exceptions
+import nk
 import uuid
+import environment as env
+import agent
 
-###Much of this genomeAgent is borrowed from Michael Palmer!!!
+###Some of this genomeAgent is borrowed from Michael Palmer!!!
 
+dim=256
+e=env.Environment(dim)
 
 MAXLIFE    = 0
 VISION     = 1
@@ -17,7 +21,6 @@ STARTSIZE  = 6
 GROWTHRATE = 7
 EATSMEAT   = 8
 EATSPLANTS = 9
-
 
 standardAttributes = [
                              ('setMaxLife',MAXLIFE),
@@ -33,11 +36,11 @@ standardAttributes = [
                      ]
 
 def random_genome():
-    return [r.randint(1,100) for x in standardAttributes]
+    return [randint(1,100) for x in standardAttributes]
 
-class GenomeAgent(a.Agent):
+class GenomeAgent(agent.Agent):
     def __init__(self,env,genome = random_genome(),species = "Thing-a-ma-jig",parents = None):
-        self.id = str(uuid,uuid4()).split('-')[4]
+        self.id = str(uuid.uuid4()).split('-')[4]
         self.dim = len(genome)
         self.env = env
         self.x,self.y = self.returnBirthPlace(parents)
@@ -47,6 +50,9 @@ class GenomeAgent(a.Agent):
         self.age = 0
         self.alive = True
         self.species = species
+        ### what do I eat?
+        self.food_source='all' ### or 'prey' or 'all'
+        self.consumption_rate=1
 
     ### These functions are part of the GenomeAgent class initialization.
     ### These functions come from Michael Palmer's implementation of the genomeagent.
@@ -61,54 +67,54 @@ class GenomeAgent(a.Agent):
 
     def setStandardGenomeAttributes(self,genome):
         for attr in standardAttributes:
-            funcName = attribute[0]
-            position = attribute[1]
+            funcName = attr[0]
+            position = attr[1]
             getattr(self,funcName)(genome[position])  ###I DON"T UNDERSTAND THIS LINE!
 
     def setInitialEnergy(self,genome,parents):
-        energy = 0.0
+        self.energy = 0.0
         if parents != None:
             parent0ChildCost = parents[0].energy_childbirth_delta
             parent1ChildCost = parents[1].energy_childbirth_delta
         else:
-            parent0ChildCost = self.energy_shildbirth_delta
+            parent0ChildCost = self.energy_childbirth_delta
             parent1ChildCost = self.energy_childbirth_delta
-        self.energy = (parent0ChildCost * parent1ChildCost) * 3
+        self.energy = (parent0ChildCost * parent1ChildCost)
 
     ### These functions define characteristics and dynamic elements of the GenomeAgent class.
     ### These functions come from Michael Palmer's implementation of the genomeagent.
     def setMaxLife(self,value):
-        self.max_lifespan = floor(value) ###I DON'T UNDERSTAND WHERE FLOOR() COMES FROM!
+        self.max_lifespan = value #floor(value) ###I DON'T UNDERSTAND WHERE FLOOR() COMES FROM!
 
     def setVisionRadius(self,value):
-        self.vision_radius = int(floor(sqrt(value)))
+        self.vision_radius = value #int(floor(sqrt(value)))
 
     def setMovementRate(self,value):
-        self.movement_rate = floor(sqrt(value))
+        self.movement_rate = value #floor(sqrt(value))
 
     def setChildBirthCost(self,value):
-        self.energy_childbirth_delta = floor(sqrt(value))
+        self.energy_childbirth_delta = value #floor(sqrt(value))
 
     def setMatingCost(self,value):
-        self.energy_mating_delta = floor(sqrt(value))
+        self.energy_mating_delta = value #floor(sqrt(value))
 
     def setMoveCost(self,value):
-        self.energy_move_delta = floor(sqrt(value))
+        self.energy_move_delta = value #floor(sqrt(value))
 
     def setStartSize(self,value):
-        self.size = floor(sqrt(value))
+        self.size = value #floor(sqrt(value))
 
     def setGrowthRate(self,value):
-        self.growth_rate = value / 100.0
+        self.growth_rate = float(value) / 1000.0
 
     def setEatsMeat(self,value):
-        if value % 2 == 0:
+        if value == 1:
             self.eats_meat = True
         else:
             self.eats_meat = False
 
     def setEatsPlants(self,value):
-        if value % 2 == 0:
+        if value == 1:
             self.eats_plants = True
         else:
             self.eats_plants = False
@@ -142,9 +148,10 @@ class GenomeAgent(a.Agent):
             ### determining if the animal is not the same species, if it is compatible (DEFINE)        
         ### Write Poetry
             ### probably not going to happen this round...
+        
 
-    def inDanger(self,other): ### defines when in danger...
-        if other.eats_meat == True and hungry(other) == True:
+    def inDanger(self): ### defines when in danger...
+        if other.eats_meat == True and other.hungry() == True:
             return True
         else:
             return False
@@ -167,7 +174,7 @@ class GenomeAgent(a.Agent):
         else:
             return True
 
-    def hungry(self,other): ## defines an agent's hunger status
+    def hungry(self): ## defines an agent's hunger status
         if self.canMove(self,self.setMoveCost(value)) == False:
             return True
         elif self.canMate(self,self.setMateCost(value)) == False and self.species != other.species:
