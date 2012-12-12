@@ -34,11 +34,12 @@ STANDARDATTRIBUTES = [
                      ]
 
 
+MOVES = [(-1,1),(0,1),(1,1),(-1,0),(1,0),(-1,-1),(0,-1),(1,-1)]
+
+
 def random_genome():
     return [ randint(1,100)   for x in STANDARDATTRIBUTES]
 
-
-    
 
 class GenomeAgent(Agent):
     def __init__(self, env, genome=random_genome(), species = 'Bug Eyed Monster',parents=None):
@@ -227,7 +228,13 @@ class GenomeAgent(Agent):
     def mate_with_agent(self,agent):
         baby=self.__class__(self.env,self.genome,self.species,[self,agent])
         self.env.putAgent(baby)
-        self.expend_energy(self.energy_mating_delta+self.energy_childbirth_delta) 
+        self.expend_energy(self.energy_mating_delta+self.energy_childbirth_delta)
+    def wander(self,movement,func):
+        while(movement>0 and self.visible_same_species()== False and func()== False):
+            x,y = choice(MOVES)
+            self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x),self.env.wrap(self.y + y)))
+            movement -= 1
+        return movement             
        
 
 
@@ -236,7 +243,7 @@ RABBIT = [ 10,
             9,
             9,
             10,
-            4,
+            3,
             1,
             1,
             1,
@@ -250,7 +257,7 @@ WOLF   = [ 10,
            20,
            20,
             1,
-            9,
+           16,
            20,
             2,
             1,
@@ -302,6 +309,30 @@ def test_movetosame():
    rb1.y = 3
    ev.putAgent(rb)
    ev.putAgent(rb1)
+   return run(ev)
+
+def test_predation():
+   ev = Environment(10)
+   rb = Rabbit(ev)
+   rb1= Rabbit(ev)
+   wf = Wolf(ev)
+   rb.x = 1
+   rb.y = 1
+   rb1.x = 2
+   rb1.y = 2
+   wf.x = 8
+   wf.y = 6
+   ev.putAgent(rb)
+   ev.putAgent(rb1)
+   ev.putAgent(wf)
+   return run(ev)
+
+def test_wander():
+   ev = Environment(10)    
+   wf = Wolf(ev)
+   wf.x = 8
+   wf.y = 6
+   ev.putAgent(wf)
    return run(ev)
 
 class Rabbit(GenomeAgent):
@@ -357,6 +388,9 @@ class Rabbit(GenomeAgent):
           if self.no_food() and movement > 0:
              movement = self.move_towards_food(movement)
 
+          if self.energy > self.growth_energy_threshold: 
+             self.size += self.size*self.growth_rate
+
           self.eat_grass()
 
           if self.shoulddie() :
@@ -371,8 +405,12 @@ class Rabbit(GenomeAgent):
              self.die()
              return (self.x,self.y)
 
-          
+          if self.no_food() and self.visible_predators()==False and self.visible_same_species()==False and movement > 0:
+             movement = self.wander(movement,self.no_food)
          
+          if self.shoulddie() :
+             self.die()
+             return (self.x,self.y)
 
           print 'rabbit %s %s %s %s \n'%(self.id,self.x,self.y,self.energy)
           return (self.x,self.y)
@@ -387,11 +425,22 @@ class Wolf(GenomeAgent):
          #
          while (self.visible_prey() and movement > 0):
             closest = self.find_closest_prey(self.getFOV())
-            if closest != []:
+            if closest != [] and closest[0][0] > 0.5:
                  x_move,y_move = self.get_directiontoward(closest[0][1],closest[0][2])
                  self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
                  movement -= 1
+            else :
+                 self.attackprey(closest[0][3])
+                 movement -= 1
          return movement
+      def attackprey(self,agent):
+          ratio = ((agent.energy / 10.0) + agent.size) / (((agent.energy / 10.0) + agent.size) + ((self.energy / 10) + self.size))
+          attack = uniform(0,1)
+          if attack > max(ratio,.80):
+              self.energy += agent.size
+              agent.die()
+          else:
+              print 'attack failed!!'
       def run(self):
           movement = self.movement_rate
 
@@ -408,7 +457,18 @@ class Wolf(GenomeAgent):
              self.mate()
 
           if self.shoulddie() :
-             self.die()            
+             self.die()
+             return(self.x,self.y)
+
+          if self.visible_prey() == False and self.visible_same_species() == False and movement > 0:
+             movement = self.wander(movement,self.visible_prey)
+             
+          if self.shoulddie() :
+             self.die()
+             return(self.x,self.y)
+
+          if self.energy > self.growth_energy_threshold: 
+             self.size += self.size*self.growth_rate
           
           print 'wolf %s %s \n'%(self.x,self.y)
           return (self.x,self.y)
