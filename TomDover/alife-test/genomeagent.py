@@ -47,11 +47,12 @@ class GenomeAgent(agent.Agent):
         self.genome = genome
         self.setStandardGenomeAttributes(genome)
         self.setInitialEnergy(genome,parents)
+        self.setFoodSource()
         self.age = 0
         self.alive = True
         self.species = species
         ### what do I eat?
-        self.food_source='all' ### or 'prey' or 'all'
+        #self.food_source='all' ### or 'prey' or 'all'
         self.consumption_rate=1
 
     ### These functions are part of the GenomeAgent class initialization.
@@ -80,6 +81,23 @@ class GenomeAgent(agent.Agent):
             parent0ChildCost = self.energy_childbirth_delta
             parent1ChildCost = self.energy_childbirth_delta
         self.energy = (parent0ChildCost * parent1ChildCost)
+
+    def setFoodSource(self):
+        self.food_source = "unknown"
+        m = self.eats_meat
+        p = self.eats_plants
+        if m == True and p == True:
+            self.food_source = "all"
+        elif m == True and p == False:
+            self.food_source = "prey"
+        elif m == False and p == True:
+            self.food_source = "env"
+        elif m == False and p == False:
+            self.food_source = "nothing"
+        else:
+            self.food_source = "unknown"
+        
+       
 
     ### These functions define characteristics and dynamic elements of the GenomeAgent class.
     ### These functions come from Michael Palmer's implementation of the genomeagent.

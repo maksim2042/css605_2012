@@ -19,7 +19,7 @@ e=env.Environment(dim)
 z= f.Zipper(e)
 agents = [f.Zipper(e) for i in range(numagents)]
 
-def run(e):
+def run():
         trajectories = defaultdict(list)
         for time in range(max_time):
                 agents=e.agents.values()
