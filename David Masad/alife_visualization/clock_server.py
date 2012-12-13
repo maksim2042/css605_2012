@@ -7,7 +7,8 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.web
 # Model imports:
-from animals import make_wolf, make_rabbit
+#from animals import make_wolf, 
+from genomelife import Rabbit, Wolf
 from environment import Environment
 
 
@@ -127,12 +128,15 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
 
 def launch_model():
    ev = Environment(8)
-   wf = make_wolf(ev)
-   rb = make_rabbit(ev)
+   #wf = make_wolf(ev)
+   #rb = make_rabbit(ev)
+   wf = Wolf(ev)
+   rb = Rabbit(ev)
+
    rb.x = 1
    rb.y = 1
-   wf.x = 3
-   wf.y = 3
+   wf.x = 2
+   wf.y = 2
    model = ALife_Model(ev, [wf, rb])
    return model
 
