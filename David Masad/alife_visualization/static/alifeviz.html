@@ -12,6 +12,8 @@ var env;
 var env_width, env_height;
 var agents; 
 var radiation;
+var food, maxFood = 0;
+
 // Display parameters
 var width = 2400,
 	height = 1600;
@@ -21,11 +23,12 @@ var svg;
 var tiles;
 var radCircles;
 var agentShapes;
+var foodBars;
 
 // Scales and ranges:
 var elevationToColor; 
 var speciesColors;
-
+var foodScale;
 
 /*
 	FUNCTIONS
@@ -50,7 +53,8 @@ function load_env_data(env_data) {
 	// Construct the environment array
 	env = [];
 	radiation = [];
-	agents = []
+	agents = [];
+	food = [];
 
 	for (var x in env_data) {
 		for (var y in env_data[x]) {
@@ -60,6 +64,9 @@ function load_env_data(env_data) {
 
 			if (typeof env_data[x][y].radiation !== 'undefined')
 				radiation.push(env_data[x][y]);
+			if (typeof env_data[x][y].food !== 'undefined')
+				food.push(env_data[x][y]);
+
 			
 			/* JUST DRAW THE ENVIRONMENT FOR NOW:
 			if (typeof env_data[x][y].agents !== 'undefined')
@@ -76,7 +83,8 @@ function load_env_data(env_data) {
 		.range(["yellowgreen", "saddlebrown"]);
 
 	draw_environment();
-	draw_radiation();
+	draw_food();
+		//draw_radiation();
 	//draw_agents();
 }
 
@@ -89,6 +97,31 @@ function draw_environment() {
 		.attr("width", tile_size)
 		.attr("height", tile_size)
 		.style("fill", function(d) {return elevationToColor(d.el);});
+}
+
+function draw_food() {
+	console.log("here");
+	var h = 0.1 * tile_size;
+	var current_max = d3.max(food, function(d) {return d.food;});
+	if (current_max > maxFood)
+		maxFood = current_max;
+	
+	foodScale = d3.scale.linear()
+		.domain([0, maxFood])
+	 	.range([0, 0.8 * tile_size]);
+
+	 if (typeof foodBars === 'undefined') 
+	 	foodBars = svg.selectAll(".food").data(food).enter()
+	 			.append("rect");
+	 
+	 foodBars = foodBars.data(food).enter()
+	 		.append("rect")
+	 		.attr("x", function(d) {return d.x * tile_size;})
+	 		.attr("y", function(d) {return d.y * tile_size + 0.8 * tile_size;})
+	 		.attr("width", function(d) {return foodScale(d.food);})
+	 		.attr("height", h)
+	 		.style("fill", function(d) {return d3.rgb("forestgreen");});
+
 }
 
 function draw_radiation() {
@@ -151,7 +184,7 @@ ws.onmessage = function(evg) {
 
 	else if (data.header === 'agent_update') {
 		agents = data.contents;
-		draw_agents();	
+		draw_agents();
 	}
 
 	else console.log("ERROR: " + data);

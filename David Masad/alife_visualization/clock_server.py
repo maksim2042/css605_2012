@@ -101,6 +101,7 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
 
 
     def update_model(self):
+        self.send_environment()
         self.send_agents()
         self.ticker = tornado.ioloop.IOLoop.instance().add_timeout(timedelta(seconds=1), self.update_model)
 
@@ -125,7 +126,7 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
 
 
 def launch_model():
-   ev = Environment(128)
+   ev = Environment(8)
    wf = make_wolf(ev)
    rb = make_rabbit(ev)
    rb.x = 1
