@@ -32,10 +32,33 @@ STANDARDATTRIBUTES = [
                              ('setEatsPlants',EATSPLANTS),
                              ('setConsumptionRate',CONSUMPTIONRATE)
                      ]
+NORTH      = (0,1)
+NORTHEAST  = (1,1)
+NORTHWEST  = (-1,1)
+EAST       = (1,0)
+SOUTHEAST  = (1,-1)
+SOUTH      = (0,-1)
+SOUTHWEST  = (-1,-1)
+WEST       = (-1,0)
 
+MOVES = [ NORTH,
+          NORTHEAST,
+          NORTHWEST,
+          EAST,
+          SOUTHEAST,
+          SOUTH,
+          SOUTHWEST,
+          WEST]
 
-MOVES = [(-1,1),(0,1),(1,1),(-1,0),(1,0),(-1,-1),(0,-1),(1,-1)]
-
+ALTERNATIVEMOVES = { NORTH:(NORTHWEST,NORTHEAST,EAST,WEST,SOUTHEAST,SOUTHWEST,SOUTH),
+                     NORTHWEST:(NORTH,WEST,NORTHEAST,SOUTHWEST,EAST,SOUTH,SOUTHEAST),
+                     NORTHEAST:(NORTH,EAST,NORTHWEST,SOUTHEAST,WEST,SOUTH,SOUTHWEST),
+                     EAST:(NORTHEAST,SOUTHEAST,NORTH,SOUTH,NORTHWEST,SOUTHWEST,WEST),
+                     SOUTHEAST:(EAST,SOUTH,NORTHEAST,SOUTHWEST,NORTH,WEST,NORTHWEST),
+                     SOUTH:(SOUTHEAST,SOUTHWEST,EAST,WEST,NORTHEAST,NORTHWEST,NORTH),
+                     SOUTHWEST:(SOUTH,WEST,SOUTHEAST,NORTHWEST,NORTH,EAST,NORTHEAST),
+                     WEST:(SOUTHWEST,NORTHWEST,SOUTH,NORTH,NORTHEAST,SOUTHEAST,EAST)
+                  }
 
 def random_genome():
     return [ randint(1,100)   for x in STANDARDATTRIBUTES]
@@ -61,7 +84,7 @@ class GenomeAgent(Agent):
 
         self.growth_energy_threshold=20
 
-
+        self.debug = False
         
 
     def returnBirthPlace(self,parents):
@@ -211,7 +234,8 @@ class GenomeAgent(Agent):
             closest = self.find_closest_same_species(self.getFOV())
             if closest != [] and closest[0] > 0:
                x_move, y_move = self.get_directiontoward(closest[0][1],closest[0][2])
-               self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+               #self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+               self.do_move(x_move,y_move)
                movement -= 1
         return movement 
     def mate(self):
@@ -220,7 +244,6 @@ class GenomeAgent(Agent):
         for n in neighbors:
             if n[2].species == self.species and n[2].id !=self.id:
                #prevent incest
-               print n[2].parents
                if (n[2].parents != None and self in n[2].parents) or (self.parents!=None and n[2] in self.parents):
                   continue
                self.mate_with_agent(n[2])
@@ -232,10 +255,23 @@ class GenomeAgent(Agent):
     def wander(self,movement,func):
         while(movement>0 and self.visible_same_species()== False and func()== False):
             x,y = choice(MOVES)
-            self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x),self.env.wrap(self.y + y)))
+            #self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x),self.env.wrap(self.y + y)))
+            self.do_move(x,y)
             movement -= 1
         return movement             
-       
+    def do_move(self,x_move,y_move):
+        self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+    def move_around(self,x_move,y_move):
+        obstacles = self.avoid_obstacles(self.getFOV())
+        if (x_move,y_move) not in obstacles:
+            self.do_move(x_move,y_move)
+            return
+        else:
+            alternatives = ALTERNATIVEMOVES[(x_move,y_move)]
+            for move in alternatives:
+                if move not in obstacles:
+                    self.do_move(move[0],move[1])
+                    return       
 
 
 
@@ -335,8 +371,21 @@ def test_wander():
    ev.putAgent(wf)
    return run(ev)
 
+def test_movearound():
+    ev = Environment(10)
+    rb = Rabbit(ev)
+    rb1= Rabbit(ev)
+    rb.x = 0
+    rb.y = 1
+    rb1.x = 0
+    rb1.y = 3
+    ev.make_obstacle(0,2)
+    ev.putAgent(rb)
+    ev.putAgent(rb1)
+    return run(ev)
+
 class Rabbit(GenomeAgent):
-      def __init__(self,env,genome=RABBIT,species = 'rabbit',parents=None):
+      def __init__(self,env,genome=RABBIT,species = 'mbprabbit',parents=None):
         super(Rabbit,self).__init__(env,genome,species,parents)
       def no_food(self):
         if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0: return False
@@ -349,7 +398,10 @@ class Rabbit(GenomeAgent):
            self.energy += food_consumed 
            self.env.env[self.x][self.y]['food']-=food_consumed
             
-        return self.env.env[self.x][self.y]['food']   
+        return self.env.env[self.x][self.y]['food']
+
+              
+          
       def avoid_predators(self,movement):
          # Allows the rabbit to react to a new, closer predator
          # Does not stop the rabbit from running back towards a previous predator
@@ -357,7 +409,8 @@ class Rabbit(GenomeAgent):
               closest = self.find_closest_predator(self.getFOV())
               if closest != []:
                  x_move,y_move = self.get_directionaway(closest[0][1],closest[0][2])
-                 self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+                 #self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+                 self.move_around(x_move,y_move)
                  movement -= 1
          return movement
             
@@ -367,7 +420,8 @@ class Rabbit(GenomeAgent):
             closest = self.find_closest_food(self.getFOV())
             if closest != []:
                x_move, y_move = self.get_directiontoward(closest[0][1],closest[0][2])
-               self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+               #self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+               self.move_around(x_move,y_move)
                movement -= 1
          return movement
       
@@ -412,12 +466,12 @@ class Rabbit(GenomeAgent):
              self.die()
              return (self.x,self.y)
 
-          print 'rabbit %s %s %s %s \n'%(self.id,self.x,self.y,self.energy)
+          if self.debug: print 'rabbit %s %s %s %s \n'%(self.id,self.x,self.y,self.energy)
           return (self.x,self.y)
 
           
 class Wolf(GenomeAgent):
-      def __init__(self,env,genome=WOLF,species = 'wolf'):
+      def __init__(self,env,genome=WOLF,species = 'mbpwolf'):
         super(Wolf,self).__init__(env,genome,species)   
       def chase_prey(self,movement):
          #
@@ -427,7 +481,8 @@ class Wolf(GenomeAgent):
             closest = self.find_closest_prey(self.getFOV())
             if closest != [] and closest[0][0] > 0.5:
                  x_move,y_move = self.get_directiontoward(closest[0][1],closest[0][2])
-                 self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+                 #self.expend_energy(self.env.moveAgent(self,self.env.wrap(self.x + x_move),self.env.wrap(self.y + y_move)))
+                 self.do_move(x_move,y_move)
                  movement -= 1
             else :
                  self.attackprey(closest[0][3])
@@ -439,8 +494,6 @@ class Wolf(GenomeAgent):
           if attack > max(ratio,.80):
               self.energy += agent.size
               agent.die()
-          else:
-              print 'attack failed!!'
       def run(self):
           movement = self.movement_rate
 
@@ -470,7 +523,7 @@ class Wolf(GenomeAgent):
           if self.energy > self.growth_energy_threshold: 
              self.size += self.size*self.growth_rate
           
-          print 'wolf %s %s \n'%(self.x,self.y)
+          if self.debug: print 'wolf %s %s %s %s \n'%(self.id,self.x,self.y,self.energy)
           return (self.x,self.y)
 
 
