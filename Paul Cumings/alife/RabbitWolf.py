@@ -6,7 +6,7 @@ from math        import sqrt
 
 from clock       import run
 
-
+prey_List = []
 
 
 
@@ -113,33 +113,36 @@ def test_chase():
 class Rabbit(GenomeAgent):
 
       def get_predators(self,fov):
-
           neighbors = self.get_neighbors(fov)
-
           predators = [x for x in neighbors  if x[2].eats_meat == True]
-
           return predators
 
+      def swarm_around(self, fov):
+          prey = self.get_prey(fov)
+          if prey == []: return []
+          distances = [(self.dist(x[2]),x[2]) for x in prey]
+          distances.sort()
+
+          return [distances[0]]   
+          
       def find_closest_predator(self,fov):
 
           predators = self.get_predators(fov)
 
           if predators == []: return []
-
           distances = [(self.dist(x[2]),x[2]) for x in predators]
-
           distances.sort()
+          
+          for in i range(0,10):
+              prey_List.append(distances[i])
 
           return [distances[0]]        
 
       def run(self):
 
           fov=self.getFOV()
-
           closest_predator = self.get_predators(fov)
-
           if closest_predator != []:
-
              self.move_away_from_agent(closest_predator[0][2])
 
           return (self.x,self.y)
@@ -151,7 +154,6 @@ class Wolf(GenomeAgent):
       def get_prey(self,fov):
 
           neighbors = self.get_neighbors(fov)
-
           prey = [x for x in neighbors if x[2].eats_plants == True]
 
           return prey
@@ -159,11 +161,8 @@ class Wolf(GenomeAgent):
       def find_closest_prey(self,fov):
 
           prey = self.get_prey(fov)
-
           if prey == []: return []
-
           distances = [(self.dist(x[2]),x[2]) for x in prey]
-
           distances.sort()
 
           return [distances[0]]        
@@ -173,9 +172,7 @@ class Wolf(GenomeAgent):
           fov=self.getFOV()
 
           closest_prey = self.find_closest_prey(fov)
-
           if closest_prey != []:
-
               self.move_toward_agent(closest_prey[0][1])
 
           return (self.x,self.y)
