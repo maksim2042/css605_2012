@@ -118,13 +118,14 @@ class Rabbit(GenomeAgent):
           return predators
 
       def swarm_around(self, fov):
-          prey = self.get_prey(fov)
-          if prey == []: return []
-          distances = [(self.dist(x[2]),x[2]) for x in prey]
-          distances.sort()
-
+          friends = find_closest_friends
           return [distances[0]]   
-          
+         
+     def find_closest_friends(self,fov):
+          neighbors = self.get_neighbors(fov)
+          predators = [x for x in neighbors  if x[2].eats_meat == False]
+          return predators  
+         
       def find_closest_predator(self,fov):
 
           predators = self.get_predators(fov)
@@ -141,9 +142,11 @@ class Rabbit(GenomeAgent):
       def run(self):
 
           fov=self.getFOV()
-          closest_predator = self.get_predators(fov)
-          if closest_predator != []:
-             self.move_away_from_agent(closest_predator[0][2])
+          friends = self.find_closest_friends(fov)
+          self.move_toward_agent(friends[0])
+	  
+	  if random(10) < 2:
+	      swarm_around(fov)
 
           return (self.x,self.y)
 
@@ -174,6 +177,6 @@ class Wolf(GenomeAgent):
           closest_prey = self.find_closest_prey(fov)
           if closest_prey != []:
               self.move_toward_agent(closest_prey[0][1])
-
+	
           return (self.x,self.y)
 
