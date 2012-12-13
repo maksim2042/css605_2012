@@ -13,7 +13,7 @@ dim=10
 
 #weights=nk.make_weight_matrix(0.1, dim)
 e=env.Environment(dim)
-##agents = [a.Agent(e) for i in range(numagents)]
+agents = [a.Agent(e) for i in range(numagents)]
 
 def run(e):
 	trajectories = defaultdict(list)
