@@ -1,26 +1,24 @@
 import nk
-import agent as a
+import climber as c
 import random as r
 from collections import defaultdict
 import networkx as net
 import numpy as num
-import environment as env
-
 
 numagents=100
 max_time=1000
 dim=256
 
 #weights=nk.make_weight_matrix(0.1, dim)
-e=env.Environment(dim)
-agents = [a.Agent(e) for i in range(numagents)]
 
-def run():
+agents = [c.Agent(weights) for i in range(numagents)]
+g=net.barabasi_albert_graph(dim, 1, seed=None)
+weights = net.to_numpy_matrix(g).tolist()
+
+def run(agents):
 	trajectories = defaultdict(list)
 	for time in range(max_time):
-	    agents=e.agents.values()
 		for agent in r.sample(agents,len(agents)):
-		    if agent.alive==True:
-		        out=agent.run()
-		        trajectories[agent.id].append(out)
+			f=agent.anneal_agent()
+			trajectories[agent.id].append(f)
 	return trajectories
