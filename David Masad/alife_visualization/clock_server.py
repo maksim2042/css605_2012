@@ -48,6 +48,7 @@ class ALife_Model(object):
             if agent.alive:
                 new_coords = agent.run()
                 agent_locations[agent.id] = new_coords
+
         self.latest_state = self.agent_data()
         self.time += 1
 
@@ -127,17 +128,28 @@ class ModelSocket(tornado.websocket.WebSocketHandler):
 
 
 def launch_model():
-   ev = Environment(8)
+   ev = Environment(12)
    #wf = make_wolf(ev)
    #rb = make_rabbit(ev)
+   '''
+   wolves = [Wolf(ev) for _ in range(2)]
+   rabbits = [Rabbit(ev) for _ in range(4)]
+   agents = wolves + rabbits
+   for agent in agents:
+       agent.x = random.randint(0,11)
+       agent.y = random.randint(0,11)
+   model = ALife_Model(ev, agents)
+   return model
+   '''
    wf = Wolf(ev)
    rb = Rabbit(ev)
-
+   rb.debug = True
    rb.x = 1
    rb.y = 1
    wf.x = 2
    wf.y = 2
-   model = ALife_Model(ev, [wf, rb])
+   #model = ALife_Model(ev, [wf, rb])
+   model = ALife_Model(ev,[rb])
    return model
 
 app = tornado.web.Application([(r"/static/(.*)", tornado.web.StaticFileHandler, {"path": PATH}),

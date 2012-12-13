@@ -100,7 +100,7 @@ function draw_environment() {
 }
 
 function draw_food() {
-	console.log("here");
+	//console.log("here");
 	var h = 0.1 * tile_size;
 	var current_max = d3.max(food, function(d) {return d.food;});
 	if (current_max > maxFood)
@@ -113,9 +113,10 @@ function draw_food() {
 	 if (typeof foodBars === 'undefined') 
 	 	foodBars = svg.selectAll(".food").data(food).enter()
 	 			.append("rect");
+	 else foodBars.data(food).enter();
 	 
-	 foodBars = foodBars.data(food).enter()
-	 		.append("rect")
+	 foodBars = foodBars//.data(food).enter()
+	 		//.append("rect")
 	 		.attr("x", function(d) {return d.x * tile_size;})
 	 		.attr("y", function(d) {return d.y * tile_size + 0.8 * tile_size;})
 	 		.attr("width", function(d) {return foodScale(d.food);})

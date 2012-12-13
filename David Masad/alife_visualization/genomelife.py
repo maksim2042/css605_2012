@@ -209,7 +209,9 @@ class GenomeAgent(Agent):
         return False
     # drop dead based on no energy or too old
     def shoulddie(self):
-        if self.energy<=0 or self.age> self.max_lifespan: return True
+        if self.energy<=0 or self.age> self.max_lifespan:
+            print self.env.env[self.x][self.y]
+            return True
         return False
     # return everybody in the neighborhood who eats plants
     def get_prey(self,fov):
@@ -296,7 +298,7 @@ class GenomeAgent(Agent):
                return
     # create the baby
     def mate_with_agent(self,agent):
-        baby=self.__class__(self.env,self.genome,self.species,[self,agent])
+        baby=self.__class__(self.env,self.genome,self.species,parents=[self,agent])
         self.env.putAgent(baby)
         self.expend_energy(self.energy_mating_delta+self.energy_childbirth_delta)
     # If I have no other reason to move, do a random walk
@@ -446,7 +448,8 @@ class Rabbit(GenomeAgent):
         super(Rabbit,self).__init__(env,genome,species,parents)
       #are we out of food in this cell?
       def no_food(self):
-        if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0: return False
+        if self.env.env[self.x][self.y].has_key('food') and self.env.env[self.x][self.y]['food'] > 0: 
+          return False
         return True
       #eat the neighborhood
       def eat_grass(self):
@@ -457,7 +460,7 @@ class Rabbit(GenomeAgent):
            self.energy += food_consumed 
            self.env.env[self.x][self.y]['food']-=food_consumed
             
-        return self.env.env[self.x][self.y]['food']
+        #return self.env.env[self.x][self.y]['food']
       #don't get eaten               
       def avoid_predators(self,movement):
          # Allows the rabbit to react to a new, closer predator
@@ -484,7 +487,7 @@ class Rabbit(GenomeAgent):
       def run(self):
           movement = self.movement_rate
 
-          self.age += 0.1
+          #self.age += 0.1
 
           self.eat_grass()
           
