@@ -49,23 +49,32 @@ class SuperCritter(object):
         self.stomach = []
         self.uterus = []
         self.SIGHT = 8
+        self.STOMACH_EXPLODE = 10
         
-    def eat(self, target_x, target_y):
-        ## 
-        self.stomach.append(something)## 
+    def consume(self, doomedCritters):
+        for critter in doomedCritters:
+            stomach.append(c.deep.copy(doomedCritters[critter]))
+            del doomedCritters[critter]
+        if len(stomach) > STOMACH_EXPLODE:
+            del self ## Pretty sure this won't work
 
     def spawn(self):
-        # Put contents of uterus in the environment
-        self.uterus = []
-
-    def gestate(self):
-        uterus.append(SuperCritter)
+        self.world.putAgent(SuperCritter(self.world))
 
     def moveSomewhere(self):
         pass
 
     def run(self):
-        pass
+        if 'agents' in self.world[self.x][self.y]:
+            self.consume(self.world[self.x][self.y]['agents'])
+        elif len(uterus)>0:
+            self.spawn()
+        self.moveSomewhere()
+            
+        
+        
+        
+        
 
 
 
